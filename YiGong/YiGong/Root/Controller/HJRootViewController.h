@@ -7,7 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "HJBackgroundView.h"
 
 @interface HJRootViewController : UIViewController
+/** 背景图*/
+@property(nonatomic, strong) HJBackgroundView *bgView;
 
+-(UIImage *)ScreenShot;
+
+- (void)showHudWithText:(NSString *)text;
 @end

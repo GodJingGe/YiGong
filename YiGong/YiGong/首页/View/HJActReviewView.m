@@ -15,7 +15,7 @@
         _actPicBtn.frame = CGRectMake(0, 0, SCREEN_WIDTH, 200);
         [_actPicBtn addTarget:self action:@selector(browserPic:) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:_actPicBtn];
-        [self addSubview:self.titleView];
+//        [self addSubview:self.titleView];
     }
     return _actPicBtn;
 }
@@ -39,17 +39,19 @@
     }
     return _titleLabel;
 }
-- (instancetype)init
+- (instancetype)initWithBrowserPictures:(void(^)(void))browser
 {
     self = [super init];
     if (self) {
         self.frame = CGRectMake(0, 0, SCREEN_WIDTH, 200);
         self.backgroundColor = [UIColor whiteColor];
+        self.browserPicBlock = browser;
     }
     return self;
 }
+
 #pragma mark --------------ClickAction
 - (void)browserPic:(UIButton *)button{
-    
+    self.browserPicBlock();
 }
 @end

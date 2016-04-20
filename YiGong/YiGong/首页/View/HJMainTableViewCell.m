@@ -36,6 +36,10 @@
 
 - (void)setModel:(HJMainModel *)model{
     _model = model;
+    if (_model.images.count) 
+    _imageModel = _model.images[0];
+    NSString * url = [NSString stringWithFormat:COMMON_IMAGE_URL,_imageModel.imageUrl];
+    [_topicImageView sd_setImageWithURL:[NSURL URLWithString:url] completed:nil];
     _summaryView.model = model;
 }
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {

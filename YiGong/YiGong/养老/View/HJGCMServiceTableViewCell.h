@@ -16,4 +16,7 @@
 @property(nonatomic, strong) UIImageView *topicImageView;
 /** 摘要*/
 @property(nonatomic, strong) HJServiceSummary *summaryView;
+
+/** 拨打电话*/
+@property (nonatomic, copy) void (^callToGcmBlock)(NSString *);
 @end

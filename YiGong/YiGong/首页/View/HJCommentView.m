@@ -7,7 +7,7 @@
 //
 
 #import "HJCommentView.h"
-
+#define IMAGE_SIZE 40
 @implementation HJCommentView
 
 - (instancetype)init
@@ -23,11 +23,11 @@
 }
 
 - (void)resetFrame{
-    _commentTextView.frame = CGRectMake(70, 45, SCREEN_WIDTH - 110, _commentTextView.contentSize.height + 10);
-    CGFloat y  = _commentTextView.frame.origin.y + _commentTextView.frame.size.height + 10;
+    _commentTextView.frame = CGRectMake(70, 35, SCREEN_WIDTH - 110, _commentTextView.contentSize.height );
+    CGFloat y  = _commentTextView.frame.origin.y + _commentTextView.frame.size.height ;
     _commentTimeLabel.frame = CGRectMake(70, y, SCREEN_WIDTH/3, 15);
     _replyBtn.frame = CGRectMake(SCREEN_WIDTH - 40, y, 25, 25);
-    CGFloat height  = _commentTextView.frame.origin.y + _commentTextView.frame.size.height + 45;
+    CGFloat height  = _commentTextView.frame.origin.y + _commentTextView.frame.size.height + 25;
     self.frame = CGRectMake(0, 0, SCREEN_WIDTH, height);
 }
 
@@ -38,6 +38,7 @@
         CGFloat y  = _commentTextView.frame.origin.y + _commentTextView.frame.size.height + 10;
         _replyBtn.frame = CGRectMake(SCREEN_WIDTH - 40, y, 25, 25);
         [_replyBtn setBackgroundImage:[UIImage imageNamed:@"Signet"] forState:UIControlStateNormal];
+        [_replyBtn addTarget:self action:@selector(replyAction:) forControlEvents:UIControlEventTouchUpInside];
     }
     return _replyBtn;
 }
@@ -46,7 +47,9 @@
 - (UIImageView *)iconImageView{
     if (!_iconImageView) {
         _iconImageView = [[UIImageView alloc]init];
-        _iconImageView.frame = CGRectMake(15, 18, 40, 40);
+        _iconImageView.frame = CGRectMake(15, 18, IMAGE_SIZE, IMAGE_SIZE);
+        _iconImageView.layer.cornerRadius = IMAGE_SIZE / 2;
+        _iconImageView.clipsToBounds = YES;
         [self addSubview:_iconImageView];
     }
     return _iconImageView;
@@ -92,5 +95,8 @@
     return _commentTimeLabel;
 }
 
-
+- (void)replyAction:(UIButton *)button{
+    if (self.replyBlock)
+    self.replyBlock();
+}
 @end

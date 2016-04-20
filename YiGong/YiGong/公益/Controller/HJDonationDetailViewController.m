@@ -7,16 +7,21 @@
 //
 
 #import "HJDonationDetailViewController.h"
-
+#import "HJPersonalModel.h"
+#define IMAGE_SIZE 260
+#define USERINFO_URL @"uinfo"
 @interface HJDonationDetailViewController ()<UITableViewDelegate,UITableViewDataSource>
 /** 标签栏*/
 @property(nonatomic, strong) UITabBar *tabbar;
+/** 个人信息*/
+@property(nonatomic, strong) HJPersonalModel * userInfo;
 @end
 
 @implementation HJDonationDetailViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [self loadData];
     [self createUI];
 }
 - (void)createUI{
@@ -29,11 +34,15 @@
     [self.view addSubview:self.tableV];
     
     _topicImageView = [[UIImageView alloc]init];
-    UIImage * image = [UIImage imageNamed:@"shoe"];
-    _topicImageView.frame = CGRectMake(0, -image.size.height, SCREEN_WIDTH, SCREEN_WIDTH * image.size.height/image.size.width);
-    _topicImageView.image = image;
+
+    _topicImageView.frame = CGRectMake(0, -IMAGE_SIZE, SCREEN_WIDTH, IMAGE_SIZE);
     [self.tableV addSubview:_topicImageView];
-    self.tableV.contentInset=UIEdgeInsetsMake(_topicImageView.frame.size.height,0,0,0);
+    if (self.model.images.count) {
+        // 图片路径
+        NSURL * url = [NSURL URLWithString:[NSString stringWithFormat:COMMON_IMAGE_URL,self.model.images[0].imageUrl]];
+        [self.topicImageView sd_setImageWithURL:url];
+    }
+    self.tableV.contentInset = UIEdgeInsetsMake(_topicImageView.frame.size.height,0,0,0);
     
     _tabbar = [[UITabBar alloc]initWithFrame:CGRectMake(0, SCREEN_HEIGHT-64-49, SCREEN_WIDTH, 49)];
     [_tabbar setShadowImage:[UIImage new]];
@@ -41,18 +50,25 @@
     
     UIButton * contactBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     contactBtn.frame = CGRectMake(0, 0, SCREEN_WIDTH, 49);
-    [contactBtn setBackgroundColor:HJRGBA(248, 97, 111, 1.0)];
+    [contactBtn setBackgroundColor:THEME_COLOR];
     [contactBtn setTitle:@"联系他" forState:UIControlStateNormal];
     [contactBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [contactBtn addTarget:self action:@selector(contactAction:) forControlEvents:UIControlEventTouchUpInside];
     [self.tabbar addSubview:contactBtn];
-    
-    UIButton * praise = [UIButton buttonWithType:UIButtonTypeCustom];
-    praise.frame = CGRectMake(15, SCREEN_HEIGHT - 184, 50, 50);
-    [praise setBackgroundImage:[UIImage imageNamed:@"laud01"] forState:UIControlStateNormal];
-    [praise setBackgroundImage:[UIImage imageNamed:@"laud02"] forState:UIControlStateSelected];
-    [praise addTarget:self action:@selector(praiseAction:) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:praise];
+
+}
+
+- (void)loadData{
+    HJRequestTool * tool = [[HJRequestTool alloc]init];
+    NSString * url = [NSString stringWithFormat:COMMON_URL,USERINFO_URL];
+    NSDictionary * dic = [NSDictionary dictionaryWithObject:self.model.donorId forKey:@"userid"];
+    [tool postJSONWithUrl:url parameters:dic success:^(id responseObject) {
+        NSDictionary * jsonData = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
+        self.userInfo = [HJPersonalModel mj_objectWithKeyValues:jsonData[@"pd"]];
+        
+    } fail:^(NSError *error) {
+        [self loadData];
+    }];
 }
 
 #pragma mark --------------UITableViewDataSource
@@ -69,8 +85,8 @@
     _cell = [tableView dequeueReusableCellWithIdentifier:reuseID];
     if (!_cell) {
         _cell = [[HJDonationTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseID];
-        _model = [[HJDonationModel alloc]init];
         _cell.indexPath = indexPath;
+        _cell.isAvatar = YES;
         _cell.model = _model;
     }
     return _cell;
@@ -88,14 +104,17 @@
 }
 #pragma mark --------------ClickAction
 - (void)contactAction:(UIButton *)button{
+    NSString *num = [[NSString alloc] initWithFormat:@"telprompt://%@",self.userInfo.phoneNum]; //而这个方法则打电话前先弹框  是否打电话 然后打完电话之后回到程序中 网上说这个方法可能不合法 无法通过审核
+    
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:num]]; //拨号
     HJLog(@"联系他");
 }
 
-- (void)praiseAction:(UIButton *)button{
-    HJLog(@"点赞");
-    if (button.selected) return;
-    button.selected = YES;
-}
+//- (void)praiseAction:(UIButton *)button{
+//    HJLog(@"点赞");
+//    if (button.selected) return;
+//    button.selected = YES;
+//}
 
 #pragma mark --------------UIScrollViewDelegate
 - (void)scrollViewDidScroll:(UIScrollView*)scrollView{
@@ -151,8 +170,7 @@
     [super viewWillAppear:animated];
     [self setNavigationBarStyleClear];
 }
-- (void)viewWillDisappear:(BOOL)animated{
-    [super viewWillDisappear:animated];
-    [self setNavigationBarStyleNormal];
+- (void)viewDidAppear:(BOOL)animated{
+    
 }
 @end

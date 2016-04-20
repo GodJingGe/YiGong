@@ -14,7 +14,7 @@
 /**
  *  接受穿过来的类型
  */
-@property(nonatomic,assign)NSInteger type;
+@property(nonatomic,copy)NSString * type;
 /**
  *  画出线
  */

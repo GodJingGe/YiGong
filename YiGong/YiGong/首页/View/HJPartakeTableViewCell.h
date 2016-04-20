@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "HJPartakeModel.h"
 
 @interface HJPartakeTableViewCell : UITableViewCell
 /** 头像*/
@@ -15,4 +16,7 @@
 @property(nonatomic, strong) UILabel *titleLabel;
 /** 详情*/
 @property(nonatomic, strong) UILabel *detailLabel;
+
+/** 模型*/
+@property(nonatomic, strong) HJPartakeModel *model;
 @end

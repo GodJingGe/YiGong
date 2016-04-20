@@ -9,11 +9,12 @@
 #import <UIKit/UIKit.h>
 #import "HJLogoView.h"
 #import "HJTeamItemView.h"
-#import "HJTeamModel.h"
 
 @interface HJPersonalCenterView : UIView
-/** 模型*/
-@property(nonatomic, strong) HJTeamModel *model;
+/** block*/
+@property (nonatomic, copy) void (^pushToNextVCBlock)(NSInteger whichVC);
+/** 修改资料block*/
+@property (nonatomic, copy) void (^pushToPersonalInfoVCBlock)(void);
 /** 背景视图*/
 @property(nonatomic, strong) UIImageView *backgroundView;
 /** Logo*/
@@ -28,5 +29,6 @@
 @property(nonatomic, strong) HJTeamItemView *registerView;
 /** 详情*/
 @property(nonatomic, strong) UITextView *detailTextV;
-
+/** 单击手势*/
+@property(nonatomic, strong) UITapGestureRecognizer *tap;
 @end

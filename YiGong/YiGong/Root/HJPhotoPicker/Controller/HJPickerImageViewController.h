@@ -7,8 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
-
-@interface HJPickerImageViewController : UIViewController
+#import "HJRootViewController.h"
+@interface HJPickerImageViewController : HJRootViewController
 /** title*/
-@property(nonatomic,copy)NSString *imageTitle;
+@property(nonatomic, copy) NSString *imageTitle;
+/** 活动id*/
+@property(nonatomic, copy) NSString *activityId;
+/** 是否是审核*/
+@property(nonatomic, assign) BOOL isTeamCer;
+/** 传回选中的图片*/
+@property (nonatomic, copy) void (^getImagesBlock)(NSMutableArray *);
 @end

@@ -11,6 +11,8 @@
 #import "HJTopicModel.h"
 #import "HJPublishViewController.h"
 #import "HJTopicDetailViewController.h"
+#define TOPIC_URL @"vttlist"
+
 @interface HJTopicsViewController ()<UITableViewDelegate,UITableViewDataSource>
 /** 标签栏*/
 @property(nonatomic, strong) UITabBar *tabbar;
@@ -25,16 +27,36 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self createValue];
-    [self viewConfig];
+    [self createUI];
 }
 - (void)createValue{
     _dataSource = [NSMutableArray array];
-    for (int i = 0; i < 3; i ++) {
-        HJTopicModel * model = [[HJTopicModel alloc]init];
-        [_dataSource addObject:model];
-    }
+//    for (int i = 0; i < 3; i ++) {
+//        HJTopicModel * model = [[HJTopicModel alloc]init];
+//        [_dataSource addObject:model];
+//    }
+    [self loadData];
 }
-- (void)viewConfig{
+
+- (void)loadData{
+    HJRequestTool * tool = [[HJRequestTool alloc]init];
+    NSDictionary * dic = [NSDictionary dictionaryWithObject:self.teamId forKey:@"vtid"];
+    NSString * url = [NSString stringWithFormat:COMMON_URL,TOPIC_URL];
+    
+    [tool postJSONWithUrl:url parameters:dic success:^(id responseObject) {
+        NSDictionary * jsonData = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
+        NSArray * dataArr = jsonData[@"pd"];
+        for (NSDictionary * dic in dataArr) {
+            HJTopicModel * model = [HJTopicModel mj_objectWithKeyValues:dic];
+            [_dataSource addObject:model];
+        }
+        [self.tableV reloadData];
+    } fail:^(NSError *error) {
+        
+    }];
+}
+
+- (void)createUI{
     self.view.backgroundColor = [UIColor whiteColor];
     CGRect rect = CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT - 64);
     self.tableV = [[UITableView alloc]initWithFrame:rect style:UITableViewStyleGrouped];
@@ -87,5 +109,6 @@
     topicDetailVC.topicModel = _dataSource[indexPath.row];
     [self.navigationController pushViewController:topicDetailVC animated:YES];
 }
+
 
 @end

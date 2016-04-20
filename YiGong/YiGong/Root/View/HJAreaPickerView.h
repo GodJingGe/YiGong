@@ -20,5 +20,16 @@
 /** 解析后的字典*/
 @property(nonatomic, strong) NSMutableDictionary *dicDataSource;
 /** 回调*/
-@property(nonatomic,copy)void (^changeAreaBlock)(NSString *area);
+@property(nonatomic,copy)void (^changeAreaBlock)(NSString *,NSString *);
+/** 选择器和按钮父视图*/
+@property(nonatomic, strong) UIView *superView;
+/** 当前窗口*/
+@property(nonatomic, strong) UIWindow *window;
+/** 确定按钮*/
+@property(nonatomic, strong) UIButton *okBtn;
+/** 手势*/
+@property(nonatomic, strong) UITapGestureRecognizer *tap;
+
+// 初始化方法
+- (instancetype)initWithArea:(void(^)(NSString *province, NSString *city))area;
 @end

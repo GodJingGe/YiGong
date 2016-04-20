@@ -9,6 +9,8 @@
 #import <UIKit/UIKit.h>
 
 @interface HJActReviewView : UIView
+/** 浏览图片*/
+@property (nonatomic, copy) void (^browserPicBlock)(void);
 /** 活动图片*/
 @property(nonatomic, strong) NSMutableArray *picData;
 /** 图片*/
@@ -17,4 +19,6 @@
 @property(nonatomic, strong) UIView *titleView;
 /** 标题*/
 @property(nonatomic, strong) UILabel *titleLabel;
+
+- (instancetype)initWithBrowserPictures:(void(^)(void))browser;
 @end

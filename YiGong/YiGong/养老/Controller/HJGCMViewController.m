@@ -61,32 +61,18 @@
     [navTabBarController addParentController:self];
 }
 - (void)createUI{
-    __weak typeof(self) weakSelf = self;
-    _areaPicker = [[HJAreaPickerView alloc]init];
     
-    [self.areaPicker setChangeAreaBlock:^(NSString *area) {
-        weakSelf.locationLabel.text = area;
-    }];
     _locationLabel = [[HJLocationLabel alloc]init];
     [self.navigationController.navigationBar addSubview:_locationLabel];
 }
 
 #pragma mark --------------ClickAction
 - (void)changeSite{
+    __weak typeof(self) weakSelf = self;
+    _areaPicker = [[HJAreaPickerView alloc]initWithArea:^(NSString *province, NSString *city) {
+        weakSelf.locationLabel.text = city;
+    }];
     
-    [_window addSubview:_areaPicker];
-    [UIView beginAnimations:nil context:nil];
-    [UIView setAnimationDidStopSelector:@selector(changeAreaViewState)];
-    [UIView setAnimationDuration:0.3];
-    [UIView setAnimationDelegate:self];
-    [UIView setAnimationRepeatCount:0];
-    _areaPicker.frame = CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-    [UIView commitAnimations];
-}
-
-// 动画结束调用
-- (void)changeAreaViewState{
-    _areaPicker.backgroundColor = [UIColor colorWithHue:0.1 saturation:0.1 brightness:0.1 alpha:0.5];
 }
 
 #pragma mark --------------systemDelegate

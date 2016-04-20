@@ -9,8 +9,8 @@
 #ifndef PrefixHeader_pch
 #define PrefixHeader_pch
 
-#import "UIImage+HJUIImge.h"
 #import "Macro.h"
+#import "UIImage+HJUIImge.h"
 #import "SCNavTabBarController.h"
 #import "HJRequestTool.h"
 #import <PNChart/PNChart.h>

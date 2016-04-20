@@ -9,5 +9,6 @@
 #import "HJRootViewController.h"
 
 @interface HJHealthRecordViewController : HJRootViewController
-
+/** type*/
+@property (nonatomic, copy) NSString *type;
 @end

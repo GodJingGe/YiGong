@@ -27,6 +27,8 @@
 @property(nonatomic, strong) HJTeamItemView *releatedTopicView;
 /** 注册时间*/
 @property(nonatomic, strong) HJTeamItemView *registerView;
+/** 详情父视图*/
+@property(nonatomic, strong) UIView *detailView;
 /** 详情*/
 @property(nonatomic, strong) UITextView *detailTextV;
 

@@ -9,6 +9,21 @@
 #import "HJGcmModel.h"
 
 @implementation HJGcmModel
++ (NSDictionary *)mj_replacedKeyFromPropertyName{
+    return  @{
+              @"gcmName":@"GM_NAME",
+              @"phoneNum":@"GM_TEL",
+              @"gcmAddress":@"GM_ADDRESS",
+              @"gcmSummary":@"GM_DESCRIPTION",
+              @"gcmService":@"GM_FEEDESC",
+              @"healthCare":@"GM_SERVEINFO",
+              @"rctEquipment":@"GM_RECEIVE",
+              @"gcmId":@"GM_ID",
+              @"gcmAvatar":@"GM_AVATER",
+              
+              };
+}
+
 - (instancetype)init
 {
     self = [super init];

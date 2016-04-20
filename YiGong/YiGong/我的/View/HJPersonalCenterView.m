@@ -18,14 +18,24 @@
     }
     return self;
 }
-
+- (UITapGestureRecognizer *)tap{
+    if (!_tap) {
+        _tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(changePersonalInfo)];
+        _tap.numberOfTapsRequired = 1;
+        _tap.numberOfTouchesRequired = 1;
+    }
+    return _tap;
+}
 - (void)createUI{
     _backgroundView = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, 270)];
     _backgroundView.image = [UIImage imageNamed:@"Common"];
     [self addSubview:_backgroundView];
     
     _logoView = [[HJLogoView alloc]init];
+    _logoView.followImageV.image = [UIImage imageNamed:@"Modify"];
     [self addSubview:_logoView];
+    [_logoView addGestureRecognizer:self.tap];
+    self.frame = self.backgroundView.bounds;
     
     _teamNameLabel = [[UILabel alloc]init];
     _teamNameLabel.frame = CGRectMake(0, 165, SCREEN_WIDTH, 25);
@@ -36,40 +46,33 @@
     
     _followView = [[HJTeamItemView alloc]init];
     _followView.frame = CGRectMake(0, 195, SCREEN_WIDTH/3, 75);
-    _followView.titleLabel.text = @"关注人数";
+    _followView.titleLabel.text = @"参与活动";
+    _followView.clickBtn.tag = 10;
+    [_followView.clickBtn addTarget:self action:@selector(pushToNextVC:) forControlEvents:UIControlEventTouchUpInside];
     [self addSubview:_followView];
     
     _releatedTopicView = [[HJTeamItemView alloc]init];
     _releatedTopicView.frame = CGRectMake(SCREEN_WIDTH/3, 195, SCREEN_WIDTH/3, 75);
-    _releatedTopicView.titleLabel.text = @"参与话题";
+    _releatedTopicView.titleLabel.text = @"我的捐赠";
+    _releatedTopicView.clickBtn.tag = 11;
+    [_releatedTopicView.clickBtn addTarget:self action:@selector(pushToNextVC:) forControlEvents:UIControlEventTouchUpInside];
+    [self addSubview:_releatedTopicView];
     
     _registerView = [[HJTeamItemView alloc]init];
     _registerView.frame = CGRectMake(SCREEN_WIDTH * 2/3, 195, SCREEN_WIDTH/3, 75);
-    _registerView.titleLabel.text = @"注册时间";
+    _registerView.titleLabel.text = @"我的关注";
+    _registerView.clickBtn.tag = 12;
+    [_registerView.clickBtn addTarget:self action:@selector(pushToNextVC:) forControlEvents:UIControlEventTouchUpInside];
     [self addSubview:_registerView];
     
-    _detailTextV = [[UITextView alloc]init];
-    _detailTextV.frame = CGRectMake(15, 280, SCREEN_WIDTH - 15, SCREEN_HEIGHT - 280);
-    _detailTextV.editable = NO;
-    [self addSubview:_detailTextV];
+}
+- (void)changePersonalInfo{
+    self.pushToPersonalInfoVCBlock();
+}
+- (void)pushToNextVC:(UIButton *)button{
+   // 视图跳转
+    self.pushToNextVCBlock(button.tag);
 }
 
-- (void)setModel:(HJTeamModel *)model{
-    _model = model;
-    _teamNameLabel.text = model.teamName;
-    _followView.detailLabel.text = model.followNums;
-    _releatedTopicView.detailLabel.text = model.relatedTopics;
-    _registerView.detailLabel.text = model.registerTime;
-    NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
-    paragraphStyle.lineSpacing = 10;// 字体的行间距
-    
-    NSDictionary *attributes = @{
-                                 NSFontAttributeName:[UIFont systemFontOfSize:16],
-                                 NSParagraphStyleAttributeName:paragraphStyle,
-                                 NSForegroundColorAttributeName:HJRGBA(170, 170, 170, 1.0)
-                                 };
-    _detailTextV.attributedText = [[NSAttributedString alloc] initWithString:model.content attributes:attributes];
-    
-}
 
 @end

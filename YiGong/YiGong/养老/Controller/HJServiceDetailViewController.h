@@ -7,7 +7,11 @@
 //
 
 #import "HJRootViewController.h"
+#import "HJGcmModel.h"
+#import "HJGcmCommentModel.h"
 
 @interface HJServiceDetailViewController : HJRootViewController
+/** 模型*/
+@property(nonatomic, strong) HJGcmModel *model;
 
 @end

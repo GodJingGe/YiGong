@@ -9,12 +9,20 @@
 #import <Foundation/Foundation.h>
 
 @interface HJTeamModel : NSObject
+/** 团队id*/
+@property (nonatomic, copy) NSString *teamId;
+/** 状态*/
+@property (nonatomic, copy) NSString *states;
 /** 团队名*/
 @property (nonatomic, copy) NSString *teamName;
 /** 头像*/
 @property (nonatomic, copy) NSString *teamIcon;
-/** 标题*/
-@property (nonatomic, copy) NSString *title;
+/** 成立时间*/
+@property (nonatomic, copy) NSString *setUpTime;
+/** 城市*/
+@property (nonatomic, copy) NSString *city;
+/** 地址*/
+@property (nonatomic, copy) NSString *address;
 /** 内容*/
 @property (nonatomic, copy) NSString *content;
 /** 关注人数*/

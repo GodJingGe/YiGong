@@ -15,65 +15,78 @@
     
 }
 
--(instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier{
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier{
     
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         self.selectionStyle = UITableViewCellSelectionStyleNone;
-        [self addSubview:self.reduceBtn];
-        [self addSubview:self.textF];
-        [self addSubview:self.addBtn];
+        [self addSubview:self.contentTextView];
+        [self addSubview:self.scoreTF];
     }
     return self;
+    
 }
-- (UILabel *)titleLabel{
-    if (!_titleLabel) {
+- (UITextField *)scoreTF{
+    if (!_scoreTF) {
         
-        _titleLabel = [[UILabel alloc]init];
-        _titleLabel.frame = CGRectMake(15, 20, SCREEN_WIDTH/2, 20);
-        _titleLabel.font = [UIFont systemFontOfSize:16];
-        _titleLabel.textColor = HJRGBA(170, 170, 170, 1.0);
-        _titleLabel.textAlignment = NSTextAlignmentLeft;
-        [self addSubview:_titleLabel];
+        CGFloat y = self.contentTextView.frame.size.height + self.contentTextView.frame.origin.y;
         
+        _scoreTF = [[UITextField alloc] initWithFrame:CGRectMake(15, y, SCREEN_WIDTH-30 , 40)];
+        _scoreTF.placeholder = @"请输入成绩";
+        _scoreTF.font = [UIFont systemFontOfSize:17];
+        _scoreTF.textColor = [UIColor cyanColor];
+        _scoreTF.layer.cornerRadius = 5;
+        _scoreTF.textAlignment = NSTextAlignmentCenter;
+        _scoreTF.keyboardType = UIKeyboardTypeNumberPad;
+        [_scoreTF addTarget:self action:@selector(textFielddidChanged:) forControlEvents:UIControlEventEditingChanged];
+        [self.contentView addSubview:_scoreTF];
     }
-    return _titleLabel;
-}
-- (UIButton *)reduceBtn{
-    if (!_reduceBtn) {
-        _reduceBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-        _reduceBtn.frame = CGRectMake(SCREEN_WIDTH - 180, 0, 60, 60);
-        [_reduceBtn setBackgroundImage:[UIImage imageNamed:@"subScore"] forState:UIControlStateNormal];
-    }
-    return _reduceBtn;
+    return _scoreTF;
 }
 
-- (UITextField *)textF{
-    if (!_textF) {
-        
-        _textF = [[UITextField alloc]init];
-        _textF.frame = CGRectMake(SCREEN_WIDTH - 120, 15, 60, 30);
-        _textF.keyboardType = UIKeyboardTypeNumberPad;
-        _textF.textAlignment = NSTextAlignmentRight;
-        _textF.delegate = self;
-        
+- (UITextView *)contentTextView{
+    if (!_contentTextView) {
+        _contentTextView = [[UITextView alloc]init];
+        [_contentTextView setEditable:YES];
+        _contentTextView.delegate = self;
+        _contentTextView.textColor = HJRGBA(70, 70, 70, 1.0);
+        _contentTextView.textAlignment = NSTextAlignmentCenter;
+        _contentTextView.frame = CGRectMake(10, 0, SCREEN_WIDTH - 20, 30);
+        _contentTextView.font = [UIFont systemFontOfSize:20];
     }
-    return _textF;
+    return _contentTextView;
 }
 
-- (UIButton *)addBtn{
-    if (!_addBtn) {
-        _addBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-        _addBtn.frame = CGRectMake(SCREEN_WIDTH - 60, 0, 60, 60);
-        [_addBtn setBackgroundImage:[UIImage imageNamed:@"addScore"] forState:UIControlStateNormal];
-    }
-    return _addBtn;
+- (void)setModel:(HJAssessModel *)model{
+    _model = model;
+    self.contentTextView.text = model.content;
+    self.contentTextView.editable = NO;
+    CGRect rect = self.contentTextView.frame;
+    rect.size.height = self.contentTextView.contentSize.height + 10;
+    self.contentTextView.frame = rect;
+    
+    CGRect scoreRect = self.scoreTF.frame ;
+    scoreRect.origin.y = rect.origin.y + rect.size.height + 10;
+    self.scoreTF.frame = scoreRect;
+    self.scoreTF.placeholder = [NSString stringWithFormat:@"最高成绩%@分,请不要超出",model.score];
+    
+    self.frame = CGRectMake(0, 0, SCREEN_WIDTH, scoreRect.origin.y + scoreRect.size.height);
+}
+
+#pragma mark --------------UITextViewDelegate
+- (BOOL)textViewShouldBeginEditing:(UITextView *)textView{
+    return NO;
 }
 
 #pragma mark --------------UITextFieldDelegate
+- (void)textFielddidChanged:(UITextField *)textField{
+    NSString * score = textField.text;
+    self.model.currentScore = @([score intValue]);
+}
+
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField{
     
-    if (self.completeEditingBlock) self.completeEditingBlock(self);
+    if (self.hiddenKeyBoardBlock) self.hiddenKeyBoardBlock(self);
    
     return YES;
 }

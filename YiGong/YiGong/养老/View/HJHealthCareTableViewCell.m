@@ -45,6 +45,8 @@
         _textF.frame = CGRectMake(115, 15, SCREEN_WIDTH - 145, 30);
         _textF.placeholder = @"添加新纪录";
         _textF.delegate = self;
+        _textF.keyboardType = UIKeyboardTypeNumbersAndPunctuation;
+        [_textF addTarget:self action:@selector(textFieldDidChanged:) forControlEvents:UIControlEventEditingChanged];
         _textF.textAlignment = NSTextAlignmentRight;
         [self addSubview:_textF];
     }
@@ -55,5 +57,10 @@
     [textField resignFirstResponder];
     return YES;
 }
-
+- (void)textFieldDidChanged:(UITextField *)textField{
+    self.getCurrentValueBlock(self);
+}
+- (void)textFieldDidBeginEditing:(UITextField *)textField{
+    self.getCurrentCellBlock(self);
+}
 @end

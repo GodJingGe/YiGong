@@ -57,7 +57,7 @@
         _cell = [[HJDetailTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseID];
         _model = [[HJMainModel alloc]init];
         _cell.indexPath = indexPath;
-        _cell.model = _model;
+        _cell.mainModel = _model;
     }
     return _cell;
 }

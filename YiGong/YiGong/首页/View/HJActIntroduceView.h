@@ -11,4 +11,8 @@
 @interface HJActIntroduceView : UIView
 /** 文本框*/
 @property(nonatomic, strong) UITextView *actTextView;
+/** 内容*/
+@property (nonatomic, copy) NSString *content;
+/** schedule*/
+@property (nonatomic, copy) NSString *schedule;
 @end

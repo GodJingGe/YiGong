@@ -15,4 +15,9 @@
 @property(nonatomic, strong) UILabel *titleLabel;
 /** 添加新纪录*/
 @property(nonatomic, strong) UITextField *textF;
+
+/** 获取当前cell*/
+@property (nonatomic, copy) void (^getCurrentCellBlock)(HJHealthCareTableViewCell *);
+/** 更新记录*/
+@property (nonatomic, copy) void (^getCurrentValueBlock)(HJHealthCareTableViewCell *);
 @end

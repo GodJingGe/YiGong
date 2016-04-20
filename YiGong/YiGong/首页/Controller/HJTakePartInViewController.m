@@ -21,7 +21,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self createValue];
-    [self viewConfig];
+    [self createUI];
 }
 - (void)createValue{
     _dataSource = [NSMutableArray array];
@@ -34,7 +34,7 @@
         [_dataSource addObject:model];
     }
 }
-- (void)viewConfig{
+- (void)createUI{
     self.view.backgroundColor = [UIColor whiteColor];
     CGRect rect = CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT - 64);
     self.tableV = [[UITableView alloc]initWithFrame:rect style:UITableViewStyleGrouped];

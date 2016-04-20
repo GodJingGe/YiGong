@@ -8,10 +8,13 @@
 
 #import <UIKit/UIKit.h>
 #import "HJCommentView.h"
+#import "HJTopicCommentModel.h"
 #import "HJTopicModel.h"
 @interface HJTopicDetailTableViewCell : UITableViewCell
 /** 模型*/
-@property(nonatomic, strong)  HJTopicModel *model;
+@property(nonatomic, strong) HJTopicCommentModel *model;
+/** 话题模型*/
+@property (nonatomic, copy) HJTopicModel *topicModel;
 /** 当前索引*/
 @property(nonatomic, strong) NSIndexPath *indexPath;
 /** 评论*/

@@ -9,7 +9,9 @@
 #import <UIKit/UIKit.h>
 #import "HJReleaseModel.h"
 
-@interface HJReleaseDonationTableViewCell : UITableViewCell
+@interface HJReleaseDonationTableViewCell : UITableViewCell<UITextFieldDelegate>
+/** 获取当前cell*/
+@property (nonatomic, copy) void (^getCurrentBlock)(void);
 /** 索引*/
 @property(nonatomic, strong) NSIndexPath *indexPath;
 /** 标题*/

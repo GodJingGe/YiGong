@@ -9,13 +9,30 @@
 #import "HJTeamModel.h"
 
 @implementation HJTeamModel
+
++ (NSDictionary *)mj_replacedKeyFromPropertyName{
+    return  @{
+              @"teamId":@"VTEAM_ID",
+              @"states":@"VT_STATUS",
+              @"teamName":@"VT_NAME",
+              @"teamIcon":@"VT_LOGO",
+              @"setUpTime":@"VT_HTIME",
+              @"city":@"VT_CITY",
+              @"address":@"VT_ADDRESS",
+              @"content":@"VT_DESCRIBE",
+              @"followNums":@"VT_CONCERN",
+              @"relatedTopics":@"VT_THEME",
+              @"registerTime":@"VT_HTIME",
+              
+              };
+}
+
 - (instancetype)init
 {
     self = [super init];
     if (self) {
         self.teamName = @"青年志愿者协会";
         self.teamIcon = @"team_img01";
-        self.title = @"中国青年志愿者协会";
         self.content = @"中国青年志愿者协会成立于1994年12月5日，是由志愿从事社会公益事业与社会保障事业的各界青年组成的全国性社会团体 ，是中国共产主义青年团中央指导下的，由依法成立的省、自治区、直辖市青年志愿者组织和全国性的专业、行业青年志愿者组织和个人自愿结成的全国性的非营利性社会组织，是全国青联团体会员，联合国国际志愿服务协调委员会（CCIVS）联席会员组织。";
         self.followNums = @"358";
         self.relatedTopics = @"42";

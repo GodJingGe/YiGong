@@ -16,6 +16,6 @@
 
 - (void)postJSONWithUrl:(NSString *)urlStr parameters:(id)parameters success:(void (^)(id responseObject))success fail:(void (^)(NSError *error))fail;
 
-- (void)postFileWithUrl:(NSString *)urlStr parameters:(id)parameters success:(void (^)(id responseObject))success fail:(void (^)(NSError *error))fail;
+- (void)postFileWithUrl:(NSString *)urlStr file:(NSMutableArray *)files parameters:(id)parameters success:(void (^)(id responseObject))success fail:(void (^)(NSError * error))fail;
 
 @end

@@ -34,6 +34,8 @@
     
     _textF = [[UITextField alloc]init];
     _textF.frame = CGRectMake(110, 15, SCREEN_WIDTH - 150, 30);
+    _textF.delegate = self;
+    [_textF addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
     _textF.textAlignment = NSTextAlignmentRight;
     [self addSubview:_textF];
 }
@@ -50,4 +52,8 @@
     // Configure the view for the selected state
 }
 
+#pragma mark --------------UITextFieldDelegate
+- (void)textFieldDidChange:(UITextField *)textField{
+    self.getCurrentBlock();
+}
 @end

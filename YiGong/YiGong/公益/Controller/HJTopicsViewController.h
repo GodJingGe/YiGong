@@ -11,4 +11,6 @@
 @interface HJTopicsViewController : HJRootViewController
 /** title*/
 @property (nonatomic, copy) NSString *teamName;
+/** teamId*/
+@property (nonatomic, copy) NSString *teamId;
 @end

@@ -33,23 +33,33 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [self viewConfig];
+    [self createValue];
     [self createUI];
 }
-- (void)viewConfig{
+- (void)createValue{
     
     self.view.backgroundColor = [UIColor cyanColor];
     self.view.backgroundColor = [UIColor whiteColor];
     self.navigationItem.title = @"公益";
-    _window = [UIApplication sharedApplication].keyWindow;
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc]initWithImage:[UIImage imageNamed:@"location"] style:UIBarButtonItemStyleDone target:self action:@selector(changeSite)];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithImage:[UIImage imageNamed:@"search"] style:UIBarButtonItemStyleDone target:self action:@selector(searchAction)];
     
     _teamVC = [[HJCMWTeamViewController alloc]init];
     _teamVC.title = @"公益团队";
     
+    __weak typeof(self) weakSelf = self;
     
     _activityVC = [[HJCMWActivityViewController alloc]init];
+    [_activityVC setHideNavigationBar:^(BOOL isHidden) {
+        if (isHidden) {
+            [weakSelf ScreenShot];
+            [weakSelf setNavigationBarStyleClear];
+        }else{
+            [weakSelf.navigationController.navigationBar setHidden:NO];
+            [weakSelf setNavigationBarStyleNormal];
+        }
+        
+    }];
     _activityVC.title = @"公益活动";
     
     
@@ -73,27 +83,20 @@
     [navTabBarController addParentController:self];
 }
 - (void)createUI{
-    __weak typeof(self) weakSelf = self;
-    _areaPicker = [[HJAreaPickerView alloc]init];
     
-    [self.areaPicker setChangeAreaBlock:^(NSString *area) {
-        weakSelf.locationLabel.text = area;
-    }];
+    
+    
     _locationLabel = [[HJLocationLabel alloc]init];
     [self.navigationController.navigationBar addSubview:_locationLabel];
 }
 
 #pragma mark --------------ClickAction
 - (void)changeSite{
+    __weak typeof(self) weakSelf = self;
+    _areaPicker = [[HJAreaPickerView alloc]initWithArea:^(NSString *province, NSString *city) {
+        weakSelf.locationLabel.text = city;
+    }];
     
-    [_window addSubview:_areaPicker];
-    [UIView beginAnimations:nil context:nil];
-    [UIView setAnimationDidStopSelector:@selector(changeAreaViewState)];
-    [UIView setAnimationDuration:0.3];
-    [UIView setAnimationDelegate:self];
-    [UIView setAnimationRepeatCount:0];
-    _areaPicker.frame = CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-    [UIView commitAnimations];
 }
 
 - (void)searchAction{
@@ -109,11 +112,26 @@
     releaseVC.placeholder = @"请在此输入信息";
     [self.navigationController pushViewController:releaseVC animated:YES];
 }
-// 动画结束调用
-- (void)changeAreaViewState{
-    _areaPicker.backgroundColor = [UIColor colorWithHue:0.1 saturation:0.1 brightness:0.1 alpha:0.5];
+
+// 设置导航栏透明
+- (void)setNavigationBarStyleClear{
+    
+    UIColor * color = [UIColor clearColor];
+    
+    [self.navigationController.navigationBar setBackgroundImage:[UIImage imageWithColor:color] forBarMetrics:UIBarMetricsDefault];
+    [self.navigationController.navigationBar setShadowImage:[[UIImage alloc]init]];
+    self.navigationController.navigationBar.translucent = YES;
+    
 }
 
+// 设置导航栏正常
+- (void)setNavigationBarStyleNormal{
+    
+    UIColor * color = HJRGBA(248, 97, 111, 1.0);
+    [self.navigationController.navigationBar setBackgroundImage:[UIImage imageWithColor:color] forBarMetrics:UIBarMetricsDefault];
+    self.navigationController.navigationBar.translucent = NO;
+    
+}
 #pragma mark --------------systemDelegate
 - (void)viewDidAppear:(BOOL)animated{
     [super viewDidAppear:animated];

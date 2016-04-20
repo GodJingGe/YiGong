@@ -74,7 +74,7 @@
 }
 
 // 为当前数据进行赋值
--(void)setType:(NSInteger)type{
+-(void)setType:(NSString *)type{
     _type = type;
 }
 /**
@@ -83,7 +83,7 @@
 -(void)setDataSource:(NSMutableArray *)dataSource{
     _dataSource = dataSource;
     for (HJHealthRecordModel *model in dataSource) {
-        NSArray *array = [model.value componentsSeparatedByString:@";"];
+        NSArray *array = [model.value componentsSeparatedByString:@"/"];
         [self.lineValue1 addObject:[array firstObject]];
         if (array.count>1) {
             [self.lineValue2 addObject:array[1]];
@@ -105,7 +105,12 @@
         self.lineChart.yLabelColor = [UIColor whiteColor];
         self.lineChart.axisColor = [UIColor whiteColor];
         self.lineChart.backgroundColor = [UIColor clearColor];
+        NSMutableArray * xlabels = [NSMutableArray array];
+        for (int i = 0; i < self.dataSource.count; i ++) {
+            [xlabels addObject:[NSString stringWithFormat:@"day%d",i + 1]];
+        }
         [self.lineChart setXLabels:@[@"SEP 1",@"SEP 2",@"SEP 3",@"SEP 4",@"SEP 5",@"SEP 6",@"SEP 7"]];
+        [self.lineChart setXLabels:xlabels];
         self.lineChart.showCoordinateAxis = YES;
         
         //Use yFixedValueMax and yFixedValueMin to Fix the Max and Min Y Value

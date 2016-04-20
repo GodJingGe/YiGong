@@ -7,12 +7,19 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "HJDonationImageModel.h"
 
 @interface HJDonationModel : NSObject
-/** 头像*/
-@property (nonatomic, copy) NSString *goodsIcon;
+/** 捐赠图片*/
+@property (nonatomic, copy) NSMutableArray <HJDonationImageModel *>*images;
 /** title*/
 @property (nonatomic, copy) NSString *title;
+/** 用户id*/
+@property (nonatomic, copy) NSString *donorId;
+/** 用户头像*/
+@property (nonatomic, copy) NSString *avatar;
+/** 捐赠id*/
+@property (nonatomic, copy) NSString *donattionId;
 /** 详细内容*/
 @property (nonatomic, copy) NSString *content;
 /** 捐赠对象*/

@@ -10,11 +10,12 @@
 
 @implementation HJLocationLabel
 
-- (instancetype)init
-{
+- (instancetype)init{
     self = [super init];
     if (self) {
+        
         [self createUI];
+
     }
     return self;
 }
@@ -93,6 +94,7 @@
              ;
              NSString * cityStr = [city substringWithRange:NSMakeRange(0, city.length - 1)];
              self.text = cityStr;
+             
          }
          else if (error == nil && [array count] == 0){
              

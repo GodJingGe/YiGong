@@ -9,11 +9,32 @@
 #import "HJMainModel.h"
 
 @implementation HJMainModel
+
++ (NSDictionary *)mj_replacedKeyFromPropertyName{
+    return  @{
+              @"activityId":@"VACTIVITY_ID",
+              @"images":@"VAI_IMG_THEME",
+              @"activityTime":@"VA_STIME",
+              @"activityTitle":@"VA_TOPIC",
+              @"activityAddress":@"VA_ADDRESS",
+              @"activityPersons":@"VA_ENROLL",
+              @"totalPersons":@"VA_ENROLL_M",
+              @"teamName":@"VA_VT_NAME",
+              @"activityContent":@"VA_CONTENT",
+              @"activitySchedule":@"VA_SCHEDULE",
+              
+              };
+}
++ (NSDictionary *)mj_objectClassInArray{
+    return @{
+             @"images":@"HJMainImageModel"
+             };
+}
+
 - (instancetype)init
 {
     self = [super init];
     if (self) {
-        self.topicImage = [UIImage imageNamed:@"banner"];
         NSDateFormatter * dfm = [[NSDateFormatter alloc]init];
         [dfm setDateFormat:@"MM-dd hh:mm"];
         NSString * dateStr = [dfm stringFromDate:[NSDate date]];
@@ -26,4 +47,6 @@
     }
     return self;
 }
+
+
 @end

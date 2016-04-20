@@ -9,5 +9,6 @@
 #import "HJRootViewController.h"
 
 @interface HJCMWActivityViewController : HJRootViewController
-
+/** 隐藏导航栏*/
+@property (nonatomic, copy) void(^hideNavigationBar)(BOOL);
 @end

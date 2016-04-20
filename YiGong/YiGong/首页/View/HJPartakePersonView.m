@@ -16,12 +16,6 @@
     self = [super init];
     if (self) {
         
-        NSArray * arr = @[@"headp-60x60_01",@"headp-60x60_02",@"headp-60x60_03",@"headp-60x60_04",@"headp-60x60_05"];
-        NSMutableArray * array = [NSMutableArray array];
-        [array addObjectsFromArray:arr];
-        [self setPartakePersons:array];
-        _model = [[HJMainModel alloc]init];
-        [self setModel:_model];
         
     }
     return self;
@@ -49,12 +43,18 @@
 
 // 传入数据源
 - (void)setPartakePersons:(NSMutableArray *)partakePersons{
-    _partakePersons = partakePersons;
+    _partakePersons = [NSMutableArray array];
+    [_partakePersons addObjectsFromArray:partakePersons];
     
     for (int i = 0; i < partakePersons.count; i ++) {
         UIImageView * imageV = [[UIImageView alloc]init];
+        imageV.layer.cornerRadius = IMAGE_SIZE/2;
+        imageV.clipsToBounds = YES;
         imageV.frame = CGRectMake(15 + (IMAGE_SIZE + 10) * i, 15, IMAGE_SIZE, IMAGE_SIZE);
-        imageV.image = [UIImage imageNamed:partakePersons[i]];
+        NSURL * url = [NSURL URLWithString:[NSString stringWithFormat:COMMON_IMAGE_URL,partakePersons[i]]];
+        // 请求图片
+        [imageV sd_setImageWithURL:url];
+
         [self addSubview:imageV];
     }
 }

@@ -9,7 +9,14 @@
 #import "HJHealthRecordModel.h"
 
 @implementation HJHealthRecordModel
-
++ (NSDictionary *)mj_replacedKeyFromPropertyName{
+    return  @{
+              @"type":@"ERH_GMH_TYPE",
+              @"value":@"ERH_VALUE",
+              @"timeDate":@"ERH_UTIME",
+              
+              };
+}
 - (instancetype)init
 {
     self = [super init];

@@ -11,4 +11,5 @@
 @interface HJLocationLabel : UILabel<CLLocationManagerDelegate>
 /** 定位对象*/
 @property(nonatomic, strong) CLLocationManager *locationManager;
+
 @end

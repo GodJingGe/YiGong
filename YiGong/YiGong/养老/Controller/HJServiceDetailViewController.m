@@ -8,9 +8,21 @@
 
 #import "HJServiceDetailViewController.h"
 #import "HJServiceDetailTableViewCell.h"
-#import "HJGcmModel.h"
 #import "HJDetailHeaderView.h"
+#import "HJInputToolBar.h"
+#import "HJGcmCommentModel.h"
+#define IMAGE_SIZE 260
+#define GCM_COMMENT_URL @"gmnlist"
+#define REPLY_URL @"gmnadd"
+#define PRAISE_URL @"gmpadd"
+
 @interface HJServiceDetailViewController ()<UITableViewDelegate,UITableViewDataSource>
+{
+    BOOL isReply;
+    HJGcmCommentModel * currentModel;
+}
+/** 输入工具栏*/
+@property(nonatomic, strong) HJInputToolBar *inputToolBar;
 /** 标签栏*/
 @property(nonatomic, strong) UITabBar *tabbar;
 /** UITableView*/
@@ -21,8 +33,6 @@
 @property(nonatomic, strong) UIButton *commentBtn;
 /** 顶部视图*/
 @property(nonatomic, strong) UIImageView *topicImageView;
-/** 模型*/
-@property(nonatomic, strong) HJGcmModel *model;
 /** 分组头视图*/
 @property(nonatomic, strong) HJDetailHeaderView *superView;
 
@@ -32,8 +42,17 @@
 
 - (void)viewDidLoad{
     [super viewDidLoad];
+    [self createValue];
     [self createUI];
 }
+
+#pragma mark --------------CreateByMyself
+
+- (void)createValue{
+    _dataSource = [NSMutableArray array];
+    [self loadData];
+}
+
 - (void)createUI{
     
     CGRect rect = CGRectMake(0, -64, SCREEN_WIDTH, SCREEN_HEIGHT - 49);
@@ -42,18 +61,143 @@
     self.tableV.dataSource = self;
     [self.view addSubview:self.tableV];
     
+    UITapGestureRecognizer *gestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideKeyboard)];
+    [self.tableV addGestureRecognizer:gestureRecognizer];
+    
+    //ps:加上这句不会影响你 tableview 上的 action (button,cell selected...)
+    gestureRecognizer.cancelsTouchesInView = NO;
+    
+    self.inputToolBar = [[HJInputToolBar alloc]initWithCommitAction:^(NSString *content) {
+        [self commitAction:content];
+    }];
+    self.inputToolBar.textView.returnKeyType = UIReturnKeySend;
+    [self.view addSubview:self.inputToolBar];
+
+    
     _topicImageView = [[UIImageView alloc]init];
-    UIImage * image = [UIImage imageNamed:@"old01"];
-    _topicImageView.frame = CGRectMake(0, -image.size.height, SCREEN_WIDTH, SCREEN_WIDTH * image.size.height/image.size.width);
-    _topicImageView.image = image;
+    _topicImageView.frame = CGRectMake(0, -IMAGE_SIZE, SCREEN_WIDTH, IMAGE_SIZE);
+    NSURL * url = [NSURL URLWithString:[NSString stringWithFormat:COMMON_IMAGE_URL,self.model.gcmAvatar]];
+    [_topicImageView sd_setImageWithURL:url];
     [self.tableV addSubview:_topicImageView];
     self.tableV.contentInset=UIEdgeInsetsMake(_topicImageView.frame.size.height,0,0,0);
     
     [self createTabbar];
     
 }
+
+- (void)createTabbar{
+    
+    _tabbar = [[UITabBar alloc]initWithFrame:CGRectMake(0, SCREEN_HEIGHT - 64 - 49, SCREEN_WIDTH, 49)];
+    [_tabbar setShadowImage:[UIImage new]];
+    
+    [self.view addSubview:_tabbar];
+    
+    _commentBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    _commentBtn.frame = CGRectMake(0, 0, SCREEN_WIDTH, 49);
+    _commentBtn.backgroundColor = HJRGBA(248, 97, 111, 1.0);
+    [_commentBtn setTitle:@"评论" forState:UIControlStateNormal];
+    _commentBtn.titleLabel.font = [UIFont systemFontOfSize:20];
+    [_commentBtn addTarget:self action:@selector(commentToGcm:) forControlEvents:UIControlEventTouchUpInside];
+    [_commentBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [_tabbar addSubview:_commentBtn];
+    
+}
+
 - (void)loadData{
     
+    HJRequestTool * tool = [[HJRequestTool alloc]init];
+    NSString * url = [NSString stringWithFormat:COMMON_URL,GCM_COMMENT_URL];
+    NSDictionary * dic = [NSDictionary dictionaryWithObject:self.model.gcmId forKey:@"gmid"];
+    [tool postJSONWithUrl:url parameters:dic success:^(id responseObject) {
+        [_dataSource removeAllObjects];
+        
+        NSDictionary *dataDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
+        NSDictionary * data = dataDic[@"pd"];
+        [_dataSource removeAllObjects];
+        for (NSDictionary * dict in data[@"first"]) {
+            HJGcmCommentModel *model = [HJGcmCommentModel mj_objectWithKeyValues:dict];
+            model.type = @"1";
+            [_dataSource addObject:model];
+        }
+        for (NSDictionary * dict in data[@"second"]) {
+            HJGcmCommentModel *model = [HJGcmCommentModel mj_objectWithKeyValues:dict];
+            model.type = @"2";
+            [_dataSource addObject:model];
+        }
+        [_tableV reloadData];
+    } fail:^(NSError *error) {
+        
+    }];
+    
+}
+
+#pragma mark --------------ClickAction
+
+- (void)commentToGcm:(UIButton *)button{
+    isReply = NO;
+    [self commentAction];
+}
+
+- (void)praiseAction:(UIButton *)button{
+    
+    HJRequestTool * tool = [[HJRequestTool alloc]init];
+    NSString * url = [NSString stringWithFormat:COMMON_URL,PRAISE_URL];
+    NSMutableDictionary * dic = [NSMutableDictionary dictionaryWithObject:self.model.gcmId forKey:@"gmid"];
+    [dic setValue:[[NSUserDefaults standardUserDefaults]valueForKey:@"userid" ] forKey:@"userid"];
+    
+    [tool postJSONWithUrl:url parameters:dic success:^(id responseObject) {
+        NSDictionary * jsonData = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
+        HJLog(@"%@",jsonData);
+        [self showHudWithText:jsonData[@"info"]];
+        button.selected = YES;
+    } fail:^(NSError *error) {
+        
+    }];
+    
+    HJLog(@"点赞");
+    if (button.selected) return;
+    button.selected = YES;
+    
+}
+
+// tabbar点击事件
+- (void)commentAction{
+    
+    [self.inputToolBar.textView becomeFirstResponder];
+    
+}
+
+// 隐藏键盘
+- (void) hideKeyboard{
+    [self.inputToolBar.textView resignFirstResponder];
+}
+
+
+// 提交评论
+- (void)commitAction:(NSString *)content{
+    
+    NSString * url = [NSString stringWithFormat:COMMON_URL,REPLY_URL];
+    NSMutableDictionary * dic = [NSMutableDictionary dictionary];
+    [dic setValue:self.model.gcmId forKey:@"gmid"];
+    [dic setValue:[[NSUserDefaults standardUserDefaults] valueForKey:@"userid"] forKey:@"userid"];
+    if (isReply) {
+        [dic setValue:currentModel.messageId forKey:@"newid"];
+    }
+    [dic setValue:content forKey:@"content"];
+    HJRequestTool * tool = [[HJRequestTool alloc]init];
+    [tool postJSONWithUrl:url parameters:dic success:^(id responseObject) {
+        
+        NSDictionary * jsonData = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
+        NSString * result;
+        if ([jsonData[@"result"] isEqualToString:@"01"]) {
+            result = @"评论成功！";
+        }
+        [self showHudWithText:result];
+        [self loadData];
+        self.tableV.contentOffset = CGPointMake(0, self.tableV.contentSize.height - SCREEN_HEIGHT);
+    } fail:^(NSError *error) {
+        
+    }];
 }
 
 #pragma mark --------------UITableViewDataSource
@@ -61,6 +205,8 @@
     return 6;
 }
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    if (section == 5)
+        return _dataSource.count;
     return 1;
 }
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -68,9 +214,28 @@
     HJServiceDetailTableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:reuseID];
     if (!cell) {
         cell = [[HJServiceDetailTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseID];
-        _model = [[HJGcmModel alloc]init];
         cell.indexPath = indexPath;
-        cell.model = _model;
+        [cell setCallToGcmBlock:^(NSString *number) {
+            NSString *num = [[NSString alloc] initWithFormat:@"telprompt://%@",number]; 
+            
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:num]]; //拨号
+        }];
+        
+        
+        if (indexPath.section == 5) {
+            if (_dataSource[indexPath.row]) {
+                cell.commentModel = _dataSource[indexPath.row];
+            }
+            HJLog(@"%ld",(long)indexPath.row);
+            [cell.commentView setReplyBlock:^{
+                currentModel = _dataSource[indexPath.row];
+                isReply = YES;
+                [self commentAction];
+            }];
+            
+        }else{
+            cell.model = _model;
+        }
     }
     return cell;
 }
@@ -81,6 +246,7 @@
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
     UITableViewCell * detailCell = [self tableView:tableView cellForRowAtIndexPath:indexPath];
     return detailCell.frame.size.height;
     
@@ -153,22 +319,6 @@
     
 }
 
-- (void)createTabbar{
-    
-    _tabbar = [[UITabBar alloc]initWithFrame:CGRectMake(0, SCREEN_HEIGHT - 64 - 49, SCREEN_WIDTH, 49)];
-    [_tabbar setShadowImage:[UIImage new]];
-    
-    [self.view addSubview:_tabbar];
-    
-    _commentBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-    _commentBtn.frame = CGRectMake(0, 0, SCREEN_WIDTH, 49);
-    _commentBtn.backgroundColor = HJRGBA(248, 97, 111, 1.0);
-    [_commentBtn setTitle:@"评论" forState:UIControlStateNormal];
-    _commentBtn.titleLabel.font = [UIFont systemFontOfSize:20];
-    [_commentBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [_tabbar addSubview:_commentBtn];
-
-}
 
 // 设置导航栏透明
 - (void)setNavigationBarStyleClear{
@@ -197,25 +347,16 @@
     
 }
 
-#pragma mark --------------ClickAction
-- (void)praiseAction:(UIButton *)button{
-    
-    HJLog(@"点赞");
-    if (button.selected) return;
-    button.selected = YES;
-    
-}
 
-- (void)viewWillAppear:(BOOL)animated{
+
+- (void)viewWillAppear:(BOOL)animated
+{
     [super viewWillAppear:animated];
     [self setNavigationBarStyleClear];
     [self scrollViewDidScroll:self.tableV];
 }
-
-- (void)viewWillDisappear:(BOOL)animated{
-    [super viewWillDisappear:animated];
-    [self setNavigationBarStyleNormal];
+- (void)viewDidAppear:(BOOL)animated{
+    
 }
-
 
 @end

@@ -13,6 +13,10 @@
 @interface HJTeamCenterViewController ()
 /** 详情视图*/
 @property(nonatomic, strong) HJTeamCenterView *teamCenterView;
+/** tabbar*/
+@property(nonatomic, strong) UITabBar *tabbar;
+/** topicsBtn*/
+@property(nonatomic, strong) UIButton *topicsBtn;
 @end
 
 @implementation HJTeamCenterViewController
@@ -25,24 +29,37 @@
     
     self.view.backgroundColor = [UIColor whiteColor];
     
-    HJTeamModel * model = [[HJTeamModel alloc]init];
-    
     self.automaticallyAdjustsScrollViewInsets = NO;
     _teamCenterView = [[HJTeamCenterView alloc]init];
+    _teamCenterView.model = self.model;
     
-    __weak typeof(self) weakSelf = self;
-   
-    [_teamCenterView setPushToTopicsVCBlock:^{
-        HJTopicsViewController * topicsVC = [[HJTopicsViewController alloc]init];
-        topicsVC.title = model.teamName;
-        topicsVC.teamName = model.teamName;
-        [weakSelf.navigationController pushViewController:topicsVC animated:YES];
-    }];
+    _tabbar = [[UITabBar alloc]initWithFrame:CGRectMake(0, SCREEN_HEIGHT-64-49, SCREEN_WIDTH, 49)];
+    [_tabbar setShadowImage:[UIImage new]];
+    [_tabbar setBackgroundColor:THEME_COLOR];
+    [self.view addSubview:_tabbar];
+    
+    _topicsBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    _topicsBtn.frame = CGRectMake(0, 0, SCREEN_WIDTH, 49);
+    [_topicsBtn setBackgroundImage:[UIImage imageWithColor:THEME_COLOR] forState:UIControlStateNormal];
+    [_topicsBtn setTitle:@"进入话题" forState:UIControlStateNormal];
+    [_topicsBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [_topicsBtn addTarget:self action:@selector(pushToTopicsVC:) forControlEvents:UIControlEventTouchUpInside];
+    [_tabbar addSubview:_topicsBtn];
+    
     _teamCenterView.frame = CGRectMake(0, -64, SCREEN_WIDTH, 270);
-    _teamCenterView.model = model;
+    _teamCenterView.model = _model;
     [self.view addSubview:_teamCenterView];
 }
 
+
+#pragma mark --------------ClickAction
+- (void)pushToTopicsVC:(UIButton *)button{
+    HJTopicsViewController * topicsVC = [[HJTopicsViewController alloc]init];
+    topicsVC.title = _model.teamName;
+    topicsVC.teamName = _model.teamName;
+    topicsVC.teamId = _model.teamId;
+    [self.navigationController pushViewController:topicsVC animated:YES];
+}
 // 设置导航栏透明
 - (void)setNavigationBarStyleClear{
     
@@ -62,12 +79,12 @@
     self.navigationController.navigationBar.translucent = NO;
     
 }
-- (void)viewWillAppear:(BOOL)animated{
-    [super viewWillAppear:animated];
+
+- (void)viewWillAppear:(BOOL)animated
+{
     [self setNavigationBarStyleClear];
 }
-- (void)viewWillDisappear:(BOOL)animated{
-    [super viewWillDisappear:animated];
-    [self setNavigationBarStyleNormal];
+- (void)viewDidAppear:(BOOL)animated{
+    
 }
 @end

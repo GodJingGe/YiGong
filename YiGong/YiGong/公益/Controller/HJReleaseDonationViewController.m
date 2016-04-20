@@ -12,7 +12,15 @@
 #import "HJInputView.h"
 #import "HJPhotoPickerView.h"
 #import "HJEditImageViewController.h"
+#define ADD_DONATION_URL @"vdadd"
+
 @interface HJRleaseDonationViewController ()<UITableViewDelegate,UITableViewDataSource,TZImagePickerControllerDelegate,UITextViewDelegate,UITextFieldDelegate>
+{
+    MBProgressHUD * hud;
+    NSString * title;
+    NSString * target;
+    HJReleaseDonationTableViewCell * currentCell;
+}
 /** 文本输入框*/
 @property(nonatomic, strong)    HJInputView *inputV;
 /** 选择图片*/
@@ -154,8 +162,16 @@
     }
     if (!indexPath.section)
     {
-        cell.textF.delegate = self;
         cell.model = _dataSource[indexPath.row];
+        [cell setGetCurrentBlock:^{
+            if (indexPath.row) {
+                target = cell.textF.text;
+            }else{
+                title = cell.textF.text;
+            }
+            HJLog(@"%@",title);
+        }];
+        
     }else{
         [cell addSubview:_inputV];
         [cell addSubview:_photoPickerV];
@@ -195,8 +211,41 @@
     }
     return [[UIView alloc]init];
 }
+
 #pragma mark --------------ClickAction
 - (void)publishAction:(UIButton *)button{
-    HJLog(@"发布");
+    /**
+     *  上传图片
+     */
+    HJRequestTool * tool = [[HJRequestTool alloc]init];
+    NSString * url = [NSString stringWithFormat:COMMON_URL,ADD_DONATION_URL];
+    
+    NSMutableDictionary * dic = [NSMutableDictionary dictionaryWithObject:[[NSUserDefaults standardUserDefaults] valueForKey:@"userid"] forKey:@"userid"];
+    
+    [dic setObject:title forKey:@"title"];
+    [dic setObject:target forKey:@"target"];
+    [dic setObject:_inputV.textV.text forKey:@"content"];
+    
+    for (int i = 0 ; i < _imageDataSource.count - 1; i ++) {
+        NSData * imageData = UIImageJPEGRepresentation(_imageDataSource[i], 1.0);
+        [dic setValue:imageData forKey:[NSString stringWithFormat:@"file%d",i]];
+    }
+    [self showHUD];
+    [tool postFileWithUrl:url file:_imageDataSource parameters:dic success:^(id responseObject) {
+        hud.mode = MBProgressHUDModeText;
+        hud.labelText = @"上传成功！";
+        [hud hide:YES afterDelay:1];
+        HJLog(@"上传成功！");
+    } fail:^(NSError *error) {
+        HJLog(@"%@",error);
+    }];
+    
+}
+
+- (void)showHUD{
+    hud = [[MBProgressHUD alloc]init];
+    hud.labelText = @"正在发布";
+    [self.view addSubview:hud];
+    [hud show: YES];
 }
 @end

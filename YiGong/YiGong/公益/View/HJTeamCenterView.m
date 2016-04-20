@@ -14,12 +14,16 @@
 {
     self = [super init];
     if (self) {
+        
         [self createUI];
     }
     return self;
 }
 
 - (void)createUI{
+    
+    self.backgroundColor = [UIColor whiteColor];
+    
     _backgroundView = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, 270)];
     _backgroundView.image = [UIImage imageNamed:@"Common"];
     [self addSubview:_backgroundView];
@@ -42,7 +46,6 @@
     _releatedTopicView = [[HJTeamItemView alloc]init];
     _releatedTopicView.frame = CGRectMake(SCREEN_WIDTH/3, 195, SCREEN_WIDTH/3, 75);
     _releatedTopicView.titleLabel.text = @"参与话题";
-    [_releatedTopicView.clickBtn addTarget:self action:@selector(pushToTopicsVCAction:) forControlEvents:UIControlEventTouchUpInside];
     [self addSubview:_releatedTopicView];
     
     _registerView = [[HJTeamItemView alloc]init];
@@ -50,18 +53,29 @@
     _registerView.titleLabel.text = @"注册时间";
     [self addSubview:_registerView];
     
+    _detailView = [[UIView alloc]init];
+    _detailView.frame = CGRectMake(0, 270, SCREEN_WIDTH, SCREEN_HEIGHT - 270-49);
+    _detailView.backgroundColor = [UIColor whiteColor];
+    [self addSubview:_detailView];
+    
     _detailTextV = [[UITextView alloc]init];
-    _detailTextV.frame = CGRectMake(15, 280, SCREEN_WIDTH - 15, SCREEN_HEIGHT - 280);
+    _detailTextV.frame = CGRectMake(15, 10, SCREEN_WIDTH - 15, SCREEN_HEIGHT - 280-49);
     _detailTextV.editable = NO;
-    [self addSubview:_detailTextV];
+    [_detailView addSubview:_detailTextV];
 }
 
 - (void)setModel:(HJTeamModel *)model{
     _model = model;
+    NSURL * url = [NSURL URLWithString:[NSString stringWithFormat:COMMON_IMAGE_URL,model.teamIcon]];
+    [_logoView.teamIconImageV sd_setImageWithURL:url];
+//    if ([model.states isEqualToString:@"1"]) {
+//       [_logoView.followImageV setHidden:YES];
+//    }
     _teamNameLabel.text = model.teamName;
     _followView.detailLabel.text = model.followNums;
     _releatedTopicView.detailLabel.text = model.relatedTopics;
-    _registerView.detailLabel.text = model.registerTime;
+    _registerView.detailLabel.text = [self getFormaterTime:model.registerTime];
+    
     NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
     paragraphStyle.lineSpacing = 10;// 字体的行间距
     
@@ -73,9 +87,10 @@
     _detailTextV.attributedText = [[NSAttributedString alloc] initWithString:model.content attributes:attributes];
     
 }
-#pragma mark --------------ClickAction
-- (void)pushToTopicsVCAction:(UIButton *)button{
-    HJLog(@"跳转");
-    self.pushToTopicsVCBlock();
+- (NSString *)getFormaterTime:(NSString *)time{
+    NSArray * timeArr = [time componentsSeparatedByString:@"-"];
+    NSString * year = [timeArr[0] substringFromIndex:2];
+    NSString * timeStr = [NSString stringWithFormat:@"%@.%@",year,timeArr[1]];
+    return timeStr;
 }
 @end

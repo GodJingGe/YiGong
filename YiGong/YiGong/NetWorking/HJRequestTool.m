@@ -72,9 +72,12 @@
 //    x-www-form-urlencoded
     manager.responseSerializer.acceptableContentTypes = [NSSet setWithObject:@"application/json"];
     
+    HJLog(@"Loading...");
+    
     [manager POST:urlStr parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         
         success(responseObject);
+        HJLog(@"success!");
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         
@@ -87,11 +90,13 @@
  *  上传图片
  *
  *  @param urlStr     请求地址
+ *  @param files      上传的文件数组
  *  @param parameters 请求参数
  *  @param success    请求成功回调
  *  @param fail       请求失败回调
  */
-- (void)postFileWithUrl:(NSString *)urlStr parameters:(id)parameters success:(void (^)(id))success fail:(void (^)(NSError * ))fail{
+
+- (void)postFileWithUrl:(NSString *)urlStr file:(NSMutableArray *)files parameters:(id)parameters success:(void (^)(id responseObject))success fail:(void (^)(NSError * error))fail{
     AFHTTPRequestOperationManager * manager = [AFHTTPRequestOperationManager manager];
     
     // 设置请求格式
@@ -105,13 +110,17 @@
     // 设置返回格式
     manager.responseSerializer = [AFHTTPResponseSerializer serializer];
     
-    manager.responseSerializer.acceptableContentTypes = [NSSet setWithObject:@"form-data"];
+//    manager.responseSerializer.acceptableContentTypes = [NSSet setWithObject:@"form-data"];
     
     [manager POST:urlStr parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
         
-        NSData * data = [parameters objectForKey:@"img"];
-        [formData appendPartWithFileData:data name:@"img.png" fileName:@"avatar.png" mimeType:@"image/png"];
+        for ( int i = 0; i < files.count ; i ++) {
+            NSString * name =[NSString stringWithFormat:@"file%d",i];
+            NSData * data = [parameters objectForKey:name];
+            [formData appendPartWithFileData:data name:name fileName:@"avatar.png" mimeType:@"image/png"];
+        }
         
+    
     } success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
         
         success(responseObject);

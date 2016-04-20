@@ -54,6 +54,27 @@
 - (void)setModel:(HJHealthRecordModel *)model{
     _model = model;
     self.titleLabel.text = model.timeDate;
-    self.detailLabel.text = model.value;
+    NSString * value = model.value;
+    switch ([model.type intValue]) {
+        case 11:
+            value = [NSString stringWithFormat:@"%@ ℃",value];
+            break;
+        case 12:
+            value = [NSString stringWithFormat:@"%@ 次/min",value];
+            break;
+        case 13:
+            value = [NSString stringWithFormat:@"%@ 次/min",value];
+            break;
+        case 14:
+            value = [NSString stringWithFormat:@"%@ mmhg",value];
+            break;
+        case 15:
+            value = [NSString stringWithFormat:@"%@ %%",value];
+            break;
+        case 16:
+            value = [NSString stringWithFormat:@"%@ mmol/L",value];
+            break;
+    }
+    self.detailLabel.text = value;
 }
 @end

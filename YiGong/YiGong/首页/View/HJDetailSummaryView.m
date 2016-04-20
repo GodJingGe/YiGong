@@ -67,13 +67,44 @@
 
 }
 
+//- (void)setModel:(HJMainModel *)model{
+//    _model = model;
+//    _titleLabel.text = model.activityTitle;
+//    _locationLabel.text = model.activityAddress;
+//    _dateTimeLabel.text = model.activityTime;
+//    if ([model.activityState isEqualToString:@"1"])
+//        _stateView.image = [UIImage imageNamed:@"processing"];
+//    else _stateView.image = [UIImage imageNamed:@"over"];
+//}
+
 - (void)setModel:(HJMainModel *)model{
     _model = model;
     _titleLabel.text = model.activityTitle;
     _locationLabel.text = model.activityAddress;
-    _dateTimeLabel.text = model.activityTime;
-    if ([model.activityState isEqualToString:@"1"])
+    
+    _dateTimeLabel.text = [self formmatDateStr];
+    
+    if ([self compareDate])
         _stateView.image = [UIImage imageNamed:@"processing"];
     else _stateView.image = [UIImage imageNamed:@"over"];
+    
+}
+
+- (NSString *)formmatDateStr{
+    NSDateFormatter * dfm = [[NSDateFormatter alloc]init];
+    [dfm setDateFormat:@"yyyy-MM-dd hh:mm:ss"];
+    NSDate *date = [dfm dateFromString:_model.activityTime];
+    [dfm setDateFormat:@"MM-dd hh:mm"];
+    NSString * dateStr = [dfm stringFromDate:date];
+    return dateStr;
+}
+
+- (BOOL)compareDate{
+    NSDateFormatter * dfm = [[NSDateFormatter alloc]init];
+    [dfm setDateFormat:@"yyyy-MM-dd hh:mm:ss"];
+    NSDate * date = [dfm dateFromString:_model.activityTime];
+    NSTimeInterval state = [date timeIntervalSinceNow];
+    if (state >= 0)return YES;
+    else return NO;
 }
 @end

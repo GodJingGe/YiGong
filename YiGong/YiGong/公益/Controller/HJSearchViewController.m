@@ -47,6 +47,7 @@
         }
     }
 }
+
 - (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar{
     [self.searchBar setShowsCancelButton:NO];
 }
@@ -69,4 +70,8 @@
     [self.searchBar removeFromSuperview];
     
 }
+- (void)viewDidAppear:(BOOL)animated{
+    
+}
+
 @end

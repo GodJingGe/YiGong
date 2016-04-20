@@ -7,17 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
-
-@interface HJAssessTableViewCell : UITableViewCell<UITextFieldDelegate>
-
-/** title*/
-@property(nonatomic, strong) UILabel *titleLabel;
-/** 减*/
-@property(nonatomic, strong) UIButton *reduceBtn;
-/** 显示*/
-@property(nonatomic, strong) UITextField *textF;
-/** 加*/
-@property(nonatomic, strong) UIButton *addBtn;
+#import "HJAssessModel.h"
+@interface HJAssessTableViewCell : UITableViewCell<UITextFieldDelegate,UITextViewDelegate>
+/** 问题提示*/
+@property(nonatomic,strong)UITextView *contentTextView;
+/** 输入成绩*/
+@property (nonatomic, strong)UITextField * scoreTF;
+/** 评估*/
+@property(nonatomic, strong) HJAssessModel *model;
 /** 隐藏键盘*/
-@property (nonatomic, copy) void(^completeEditingBlock)(HJAssessTableViewCell *);
+@property (nonatomic, copy) void(^hiddenKeyBoardBlock)(HJAssessTableViewCell *);
 @end

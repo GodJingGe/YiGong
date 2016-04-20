@@ -32,7 +32,8 @@
     _teamIconImageV.clipsToBounds = YES;
     [_logoBgView addSubview:_teamIconImageV];
     
-    _followImageV = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"follower"]];
+    _followImageV = [[UIImageView alloc]init];
+    _followImageV.image = [UIImage imageNamed:@"follower"];
     _followImageV.frame = CGRectMake(50, 60, 20, 20);
     [self addSubview:_followImageV];
 }

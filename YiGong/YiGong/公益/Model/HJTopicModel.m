@@ -9,6 +9,18 @@
 #import "HJTopicModel.h"
 
 @implementation HJTopicModel
++ (NSDictionary *)mj_replacedKeyFromPropertyName{
+    return  @{
+              @"avatar":@"VTT_P_AVATER",
+              @"title":@"VTT_TITLE",
+              @"content":@"VTT_CONTENT",
+              @"author":@"VTT_P_NAME",
+              @"topicId":@"VTTHEME_ID",
+              @"timeDate":@"VTT_UTIME",
+              
+              };
+}
+
 - (instancetype)init
 {
     self = [super init];

@@ -9,8 +9,14 @@
 #import <Foundation/Foundation.h>
 
 @interface HJGcmModel : NSObject
+/** 养老院Id*/
+@property (nonatomic, copy) NSString *gcmId;
+/** 养老院图片*/
+@property (nonatomic, copy) NSString *gcmAvatar;
 /** 养老院名称*/
 @property (nonatomic, copy) NSString *gcmName;
+/** 养老院联系方式*/
+@property (nonatomic, copy) NSString *phoneNum;
 /** 养老院地址*/
 @property (nonatomic, copy) NSString *gcmAddress;
 /** 养老院简介*/

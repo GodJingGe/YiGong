@@ -20,6 +20,7 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         self.selectionStyle = UITableViewCellSelectionStyleNone;
+        self.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         self.titleLabel.text = @"认证公益团队";
     }
     return self;
@@ -27,11 +28,10 @@
 - (UILabel *)detailLabel{
     if (!_detailLabel) {
         _detailLabel = [[UILabel alloc]init];
-        _detailLabel.frame = CGRectMake(15, 40, SCREEN_WIDTH - 45, 20);
+        _detailLabel.frame = CGRectMake(SCREEN_WIDTH / 3 + 20 , 20, SCREEN_WIDTH * 2/3 - 50, 20);
         _detailLabel.font = [UIFont systemFontOfSize:14];
         _detailLabel.textColor = HJRGBA(170, 170, 170, 1.0);
-        _detailLabel.text = @"刚刚 参加了报名";
-        _detailLabel.textAlignment = NSTextAlignmentLeft;
+        _detailLabel.textAlignment = NSTextAlignmentRight;
         [self addSubview:_detailLabel];
     }
     return _detailLabel;
@@ -40,7 +40,7 @@
 - (UILabel *)titleLabel{
     if (!_titleLabel) {
         _titleLabel = [[UILabel alloc]init];
-        _titleLabel.frame = CGRectMake(20, 20, SCREEN_WIDTH - 85, 20);
+        _titleLabel.frame = CGRectMake(20, 20, SCREEN_WIDTH/3, 20);
         _titleLabel.font = [UIFont systemFontOfSize:16];
         _titleLabel.textColor = HJRGBA(100, 100, 100, 1.0);
         _titleLabel.textAlignment = NSTextAlignmentLeft;

@@ -10,6 +10,8 @@
 #import "HJGCMServiceTableViewCell.h"
 #import "HJGcmModel.h"
 #import "HJServiceDetailViewController.h"
+#define GCM_URL @"gmlist"
+
 @interface HJGCMServiceViewController ()<UITableViewDataSource,UITableViewDelegate>
 /** 是否正在刷新*/
 @property(nonatomic, assign) Boolean isRefreshing;
@@ -29,9 +31,13 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [self createValue];
     [self createUI];
 }
-
+- (void)createValue{
+    _dataSource = [NSMutableArray array];
+    [self loadData];
+}
 - (void)createUI{
     
     CGRect rect = CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT - 64 - 49);
@@ -61,12 +67,26 @@
     
 }
 - (void)loadData{
-    
+    [_dataSource removeAllObjects];
+    HJRequestTool * tool = [[HJRequestTool alloc]init];
+    NSString * url = [NSString stringWithFormat:COMMON_URL,GCM_URL];
+    [tool postJSONWithUrl:url parameters:nil success:^(id responseObject) {
+        
+        NSDictionary * jsonData = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
+        NSArray * arr = jsonData[@"pd"];
+        for (NSDictionary * dic in arr) {
+            HJGcmModel * model = [HJGcmModel mj_objectWithKeyValues:dic];
+            [_dataSource addObject:model];
+        }
+        [_tableV reloadData];
+    } fail:^(NSError *error) {
+        
+    }];
 }
 
 #pragma mark --------------UITableViewDataSource
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
-    return 10;
+    return _dataSource.count;
 }
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
     return 1;
@@ -76,8 +96,16 @@
     _cell = [tableView dequeueReusableCellWithIdentifier:reuseID];
     if (!_cell) {
         _cell = [[HJGCMServiceTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseID];
-        _model = [[HJGcmModel alloc]init];
-        _cell.model = _model;
+        if (_dataSource[indexPath.section]) {
+            _cell.model = _dataSource[indexPath.section];
+            [_cell setCallToGcmBlock:^(NSString *number) {
+//                number = @"15168412087";
+                NSString *num = [[NSString alloc] initWithFormat:@"telprompt://%@",number];
+                
+                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:num]]; //拨号
+            
+            }];
+        }
     }
     return _cell;
 }
@@ -93,6 +121,7 @@
     HJServiceDetailViewController * serviceDetailVC = [[HJServiceDetailViewController alloc]init];
     HJGcmModel * model = _dataSource[indexPath.row];
     serviceDetailVC.title = model.gcmName;
+    serviceDetailVC.model = _dataSource[indexPath.section];
     [self.navigationController pushViewController:serviceDetailVC animated:YES];
     
 }

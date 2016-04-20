@@ -20,5 +20,8 @@
 /** 回复评论*/
 @property(nonatomic, strong) UIButton *replyBtn;
 
+/** 评论回调*/
+@property (nonatomic, copy) void (^replyBlock)(void);
+
 - (void)resetFrame;
 @end

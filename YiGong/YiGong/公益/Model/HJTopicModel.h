@@ -13,6 +13,8 @@
 @property (nonatomic, copy) NSString *avatar;
 /** title*/
 @property (nonatomic, copy) NSString *title;
+/** 话题id*/
+@property (nonatomic, copy) NSString *topicId;
 /** 内容*/
 @property (nonatomic, copy) NSString *content;
 /** 发布人*/

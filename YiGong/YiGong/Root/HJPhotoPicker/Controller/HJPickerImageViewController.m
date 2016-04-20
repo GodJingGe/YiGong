@@ -11,9 +11,13 @@
 #import "HJTableViewCell.h"
 #import "HJPhotoPickerView.h"
 #import "HJEditImageViewController.h"
+#define UPLOADFILE_URL @"vaiadd"
 #define IMAGE_SIZE (SCREEN_WIDTH - 60)/4
 
 @interface HJPickerImageViewController ()<UITextViewDelegate,UITableViewDelegate,UITableViewDataSource,TZImagePickerControllerDelegate>
+{
+    MBProgressHUD * hud;
+}
 /** 文本输入框*/
 @property(nonatomic, strong)    HJInputView *inputV;
 /** UITableView*/
@@ -30,7 +34,50 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [self viewConfig];
+    [self createUI];
+}
+
+/**
+ *  上传图片
+ */
+- (void)uploadImage{
+    HJRequestTool * tool = [[HJRequestTool alloc]init];
+    NSString * url = [NSString stringWithFormat:COMMON_URL,UPLOADFILE_URL];
+    
+    NSMutableDictionary * dic = [NSMutableDictionary dictionaryWithObject:self.activityId forKey:@"vaid"];
+    for (int i = 0 ; i < _imageDataSource.count - 1; i ++) {
+        NSData * imageData = UIImageJPEGRepresentation(_imageDataSource[i], 0.1);
+        [dic setValue:imageData forKey:[NSString stringWithFormat:@"file%d",i]];
+    }
+    [self showHUD];
+    NSMutableArray * images = [NSMutableArray arrayWithArray:_imageDataSource];
+    [images removeLastObject];
+    [tool postFileWithUrl:url file:images parameters:dic success:^(id responseObject) {
+        //        hud.mode = MBProgressHUDModeText;
+        //        hud.labelText = @"上传成功！";
+        //        [hud hide:YES afterDelay:1];
+        [self showHudWithText:@"上传成功！"];
+        HJLog(@"上传成功！");
+    } fail:^(NSError *error) {
+        HJLog(@"%@",error);
+    }];
+}
+
+- (void)showHUD{
+    hud = [[MBProgressHUD alloc]init];
+    hud.labelText = @"正在上传";
+    [self.tabelV addSubview:hud];
+    [hud show: YES];
+}
+
+/**
+ *  完成选择
+ *
+ *  @return 返回选中的图片
+ */
+- (void)completeChoose{
+    self.getImagesBlock(_imageDataSource);
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 // 为图片添加点击事件
@@ -40,16 +87,25 @@
     }
 }
 
-- (void)viewConfig{
+- (void)createUI{
     
     self.view.backgroundColor = [UIColor whiteColor];
     
-     __weak typeof(self) weakSelf = self;
+    __weak typeof(self) weakSelf = self;
     //不自动调整滚动视图的预留空间
     self.automaticallyAdjustsScrollViewInsets = NO;
-//    self.navigationController.navigationBar.barTintColor = [UIColor blackColor];
-//    self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
-//    [self.navigationController.navigationBar setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[UIColor whiteColor],NSForegroundColorAttributeName,[UIFont systemFontOfSize:20],NSFontAttributeName,nil]];
+    
+    if (_isTeamCer) {
+        
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:@"完成" style:UIBarButtonItemStyleDone target:self action:@selector(completeChoose)];
+        
+    }else{
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:@"上传" style:UIBarButtonItemStyleDone target:self action:@selector(uploadImage)];
+    }
+    
+    //    self.navigationController.navigationBar.barTintColor = [UIColor blackColor];
+    //    self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
+    //    [self.navigationController.navigationBar setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[UIColor whiteColor],NSForegroundColorAttributeName,[UIFont systemFontOfSize:20],NSFontAttributeName,nil]];
     // 初始化输入视图
     _inputV = [[HJInputView alloc]init];
     _inputV.textV.delegate = self;
@@ -79,6 +135,10 @@
     
 }
 
+/**
+ *  选择图片
+ */
+
 - (void)addPhotos:(UIButton *)button{
     
     __weak typeof(self) weakSelf = self;
@@ -106,6 +166,7 @@
         [self.navigationController pushViewController:_editVC animated:YES];
     }
 }
+
 
 #pragma mark --------------UITextViewDelegate
 -(void)textViewDidChange:(UITextView *)textView{
@@ -160,7 +221,6 @@
 
 #pragma mark --------------SystemVCDelegate
 - (void)viewWillAppear:(BOOL)animated{
-    
     [super viewWillAppear:animated];
     
 }

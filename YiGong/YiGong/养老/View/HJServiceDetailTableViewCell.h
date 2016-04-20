@@ -10,12 +10,15 @@
 #import "HJGcmModel.h"
 #import "HJServiceSummary.h"
 #import "HJServiceContentView.h"
+#import "HJGcmCommentModel.h"
 #import "HJCommentView.h"
 @interface HJServiceDetailTableViewCell : UITableViewCell
 /** 活动摘要视图*/
 @property(nonatomic, strong) HJServiceSummary *summaryView;
 /** 模型*/
 @property(nonatomic, strong) HJGcmModel *model;
+/** 评论模型*/
+@property(nonatomic, strong) HJGcmCommentModel *commentModel;
 /** 当前索引*/
 @property(nonatomic, strong) NSIndexPath *indexPath;
 /** 机构简介*/
@@ -28,4 +31,7 @@
 @property(nonatomic, strong) HJServiceContentView *rctEquipmentView;
 /** 评论*/
 @property(nonatomic, strong) HJCommentView *commentView;
+
+/** 拨打电话*/
+@property (nonatomic, copy) void (^callToGcmBlock)(NSString *);
 @end

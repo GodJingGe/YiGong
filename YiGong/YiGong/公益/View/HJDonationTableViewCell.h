@@ -9,6 +9,8 @@
 #import <UIKit/UIKit.h>
 #import "HJDonationModel.h"
 @interface HJDonationTableViewCell : UITableViewCell
+/** 是否是头像*/
+@property (nonatomic, assign) BOOL isAvatar;
 /** 索引*/
 @property(nonatomic, strong) NSIndexPath *indexPath;
 /** 模型*/

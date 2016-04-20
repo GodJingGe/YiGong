@@ -9,5 +9,6 @@
 #import "HJRootViewController.h"
 
 @interface HJPartakeViewController : HJRootViewController
-
+/** 数据源*/
+@property(nonatomic, strong) NSMutableArray *dataSource;
 @end

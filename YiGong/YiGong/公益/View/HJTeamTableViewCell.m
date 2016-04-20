@@ -54,8 +54,11 @@
 - (void)setModel:(HJTeamModel *)model{
     
     _model = model;
-    _iconImageView.image = [UIImage imageNamed:model.teamIcon];
-    _titleLabel.text = model.title;
+    NSURL * url = [NSURL URLWithString:[NSString stringWithFormat:COMMON_IMAGE_URL,model.teamIcon]];
+    HJLog(@"%@",model.teamIcon);
+    [_iconImageView sd_setImageWithURL:url];
+//    _iconImageView.image = [UIImage imageNamed:model.teamIcon];
+    _titleLabel.text = model.teamName;
     _detailLabel.text = model.content;
     
 }

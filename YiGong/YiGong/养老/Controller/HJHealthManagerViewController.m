@@ -73,6 +73,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     HJHealthRecordViewController * healthRecordVC = [[HJHealthRecordViewController alloc]init];
     healthRecordVC.title = [NSString stringWithFormat:@"%@记录",_dataSource[indexPath.row]];
+    healthRecordVC.type = [NSString stringWithFormat:@"%ld",indexPath.row + 11];
     [self.navigationController pushViewController:healthRecordVC animated:YES];
 }
 
