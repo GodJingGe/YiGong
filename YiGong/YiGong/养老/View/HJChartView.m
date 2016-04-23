@@ -107,7 +107,7 @@
         self.lineChart.backgroundColor = [UIColor clearColor];
         NSMutableArray * xlabels = [NSMutableArray array];
         for (int i = 0; i < self.dataSource.count; i ++) {
-            [xlabels addObject:[NSString stringWithFormat:@"day%d",i + 1]];
+            [xlabels addObject:@""];
         }
         [self.lineChart setXLabels:@[@"SEP 1",@"SEP 2",@"SEP 3",@"SEP 4",@"SEP 5",@"SEP 6",@"SEP 7"]];
         [self.lineChart setXLabels:xlabels];

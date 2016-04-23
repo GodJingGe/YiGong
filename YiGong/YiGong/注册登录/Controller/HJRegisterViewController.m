@@ -30,7 +30,7 @@
     _model = [[HJRegisterModel alloc]init];
     
     _nickNameView = [[HJRegisterNickNameView alloc]initWithNextAction:^(NSString *nickName) {
-        if (nickName.length) {
+        if (nickName.length && nickName.length < 14) {
             _model.nickName = nickName;
             HJAccountViewController * accountVC = [[HJAccountViewController alloc]init];
             accountVC.title = @"注册";
@@ -38,18 +38,23 @@
             accountVC.model = _model;
             [self.navigationController pushViewController:accountVC animated:YES];
             
+        }else if (!nickName.length){
+            [self createAlertWithTitle:@"昵称不能为空"];
         }else{
-            UIAlertController * alertVC = [UIAlertController alertControllerWithTitle:@"昵称不能为空" message:nil preferredStyle:UIAlertControllerStyleAlert];
-            UIAlertAction * okAction = [UIAlertAction actionWithTitle:@"好的" style:UIAlertActionStyleDefault handler:nil];
-            [alertVC addAction:okAction];
-            
-            [self presentViewController:alertVC animated:YES completion:nil];
+            [self createAlertWithTitle:@"昵称长度过长"];
         }
         
     }];
     [self.view addSubview:_nickNameView];
 }
 
+- (void)createAlertWithTitle:(NSString *)title{
+    UIAlertController * alertVC = [UIAlertController alertControllerWithTitle:title message:nil preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction * okAction = [UIAlertAction actionWithTitle:@"好的" style:UIAlertActionStyleDefault handler:nil];
+    [alertVC addAction:okAction];
+    
+    [self presentViewController:alertVC animated:YES completion:nil];
+}
 // 触摸事件 收键盘
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event{
     [self.nickNameView.nickNameTF resignFirstResponder];

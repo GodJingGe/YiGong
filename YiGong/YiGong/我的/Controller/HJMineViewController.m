@@ -15,6 +15,9 @@
 #import "HJPersonalModel.h"
 #import "HJPubActivityViewController.h"
 #import "HJLoginViewController.h"
+#import "HJCMWActivityViewController.h"
+#import "HJCMWTeamViewController.h"
+#import "HJCMWDonationViewController.h"
 #define USERINFO_URL @"uinfo"
 
 @interface HJMineViewController ()<UITableViewDelegate,UITableViewDataSource>
@@ -42,7 +45,9 @@
     _dataSource = [NSMutableArray array];
     NSArray * titles = @[@"认证公益团队",@"意见反馈",@"清除缓存"];
     [_dataSource addObjectsFromArray:titles];
-    [self loadData];
+    
+    [[NSUserDefaults standardUserDefaults] addObserver:self forKeyPath:@"userid" options:NSKeyValueObservingOptionNew context:nil];
+
 }
 
 - (void)createUI{
@@ -66,28 +71,85 @@
     [_centerView setPushToPersonalInfoVCBlock:^{
         HJPersonalInfoViewController * personalVC = [[HJPersonalInfoViewController alloc]init];
         personalVC.title = @"修改个人资料";
-        personalVC.model = weakSelf.userInfo;
-        [weakSelf.navigationController pushViewController:personalVC animated:YES];
+        if ([weakSelf isLogin]) {
+            HJLog(@"%@",[[NSUserDefaults standardUserDefaults] valueForKey:@"userid"]);
+            personalVC.model = weakSelf.userInfo;
+            [weakSelf.navigationController pushViewController:personalVC animated:YES];
+        }else{
+            return ;
+        }
+        
     }];
     
     [_centerView setPushToNextVCBlock:^(NSInteger tag) {
         switch (tag) {
-            case 10:
+            case 10:{
+                HJCMWActivityViewController * activityVC = [[HJCMWActivityViewController alloc]init];
+                activityVC.title = @"我的活动";
+                if ([weakSelf isLogin]) {
+                    activityVC.userid = [[NSUserDefaults standardUserDefaults] valueForKey:@"userid"];
+                }else{
+                    return ;
+                }
+                activityVC.isAll = YES;
+                [weakSelf.navigationController pushViewController:activityVC animated:YES];
                 HJLog(@"跳到活动");
+            }
+                
                 break;
-            case 11:
+            case 11:{
+                HJCMWDonationViewController * donationVC = [[HJCMWDonationViewController alloc]init];
+                donationVC.title = @"我的捐赠";
+                donationVC.isAll = YES;
+                if ([weakSelf isLogin]) {
+                    donationVC.userid = [[NSUserDefaults standardUserDefaults] valueForKey:@"userid"];
+                }else{
+                    return ;
+                }
+                [weakSelf.navigationController pushViewController:donationVC animated:YES];
                 HJLog(@"跳到捐赠");
+            }
                 break;
-            case 12:
+            case 12:{
+                HJCMWTeamViewController * teamVC = [[HJCMWTeamViewController alloc]init];
+                teamVC.title = @"我的关注";
+                teamVC.isAll = YES;
+                if ([weakSelf isLogin]) {
+                    teamVC.userid = [[NSUserDefaults standardUserDefaults] valueForKey:@"userid"];
+                }else{
+                    return ;
+                }
+                [weakSelf.navigationController pushViewController:teamVC animated:YES];
+            }
                 HJLog(@"跳到组织");
                 break;
         }
     }];
     [self reloadCenterView];
-#warning TODO //赋值
+
     [self.view addSubview:_centerView];
     
 }
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    if ([keyPath isEqualToString:@"userid"]) {
+        //        NSLog(@"Height is changed! new=%@", [change valueForKey:NSKeyValueChangeNewKey]);
+        NSString * userid = [change valueForKey:NSKeyValueChangeNewKey];
+        if ([userid isEqual:[NSNull null]]) {
+            self.userInfo = [[HJPersonalModel alloc]init];
+            [self reloadCenterView];
+            return;
+        }else{
+            [self loadData];
+        }
+        
+//        [[[NSUserDefaults standardUserDefaults] valueForKey:@"userid"] removeObserver:self forKeyPath:@"userid"];
+    } else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
+}
+
 - (void)reloadCenterView{
     
     _centerView.followView.detailLabel.text = self.userInfo.activity;
@@ -100,7 +162,14 @@
 - (void)loadData{
     HJRequestTool * tool = [[HJRequestTool alloc]init];
     NSString * url = [NSString stringWithFormat:COMMON_URL,USERINFO_URL];
-    NSDictionary * dic = [NSDictionary dictionaryWithObject:[[NSUserDefaults standardUserDefaults] valueForKey:@"userid"] forKey:@"userid"];
+    
+    NSDictionary * dic = [NSDictionary dictionary];
+    if ([self isLogin]) {
+        dic = [NSDictionary dictionaryWithObject:[[NSUserDefaults standardUserDefaults] valueForKey:@"userid"] forKey:@"userid"];
+    }else{
+        return;
+    }
+    
     [tool postJSONWithUrl:url parameters:dic success:^(id responseObject) {
         NSDictionary * jsonData = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
         self.userInfo = [HJPersonalModel mj_objectWithKeyValues:jsonData[@"pd"]];
@@ -160,7 +229,7 @@
         }
             
             break;
-
+            
         case 1:{
             HJSugFdbViewController * sugFdbVC = [[HJSugFdbViewController alloc]init];
             sugFdbVC.title = @"意见反馈";
@@ -280,11 +349,33 @@
 
 #pragma mark --------------ClickAction
 - (void)quitAction{
-    HJLoginViewController * loginVC = [[HJLoginViewController alloc]init];
-    [self.navigationController pushViewController:loginVC animated:YES];
+    
+    if ([self isLogin]) {
+        [self quitAlertControllerWithTitle:@"是否确定退出？"];
+    }else{
+        return;
+    }
+    
+}
+
+
+- (void)quitAlertControllerWithTitle:(NSString *)title{
+    
+    UIAlertController * alertVC = [UIAlertController alertControllerWithTitle:@"提示" message:title preferredStyle: UIAlertControllerStyleAlert];
+    UIAlertAction * ok = [UIAlertAction actionWithTitle:@"好的" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"userid"];
+        [self showHudWithText:@"退出成功"];
+//        [self loadData];
+    }];
+    UIAlertAction * cancel = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
+    [alertVC addAction:ok];
+    [alertVC addAction:cancel];
+    [self presentViewController:alertVC animated:YES completion:nil];
+    
 }
 
 // 设置导航栏透明
+
 - (void)setNavigationBarStyleClear{
     
     UIColor * color = [UIColor clearColor];
@@ -296,6 +387,7 @@
 }
 
 // 设置导航栏正常
+
 - (void)setNavigationBarStyleNormal{
     
     UIColor * color = HJRGBA(248, 97, 111, 1.0);
@@ -303,13 +395,16 @@
     self.navigationController.navigationBar.translucent = NO;
     
 }
+
 - (void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
-    [self.tableV reloadData];
+    if ([[NSUserDefaults standardUserDefaults] valueForKey:@"userid"]) {
+        [self loadData];
+    }
 }
+
 - (void)viewDidAppear:(BOOL)animated{
     [super viewDidAppear:animated];
-    
     [self setNavigationBarStyleClear];
 }
 

@@ -143,18 +143,26 @@
     HJRequestTool * tool = [[HJRequestTool alloc]init];
     NSString * url = [NSString stringWithFormat:COMMON_URL,PRAISE_URL];
     NSMutableDictionary * dic = [NSMutableDictionary dictionaryWithObject:self.model.gcmId forKey:@"gmid"];
-    [dic setValue:[[NSUserDefaults standardUserDefaults]valueForKey:@"userid" ] forKey:@"userid"];
+    if ([self isLogin]) {
+        [dic setValue:[[NSUserDefaults standardUserDefaults]valueForKey:@"userid" ] forKey:@"userid"];
+    }else{
+        return;
+    }
     
     [tool postJSONWithUrl:url parameters:dic success:^(id responseObject) {
         NSDictionary * jsonData = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
         HJLog(@"%@",jsonData);
-        [self showHudWithText:jsonData[@"info"]];
+        if ([jsonData[@"result"] isEqualToString:@"01"]) {
+            [self showHudWithText:@"评论成功!"];
+        }else{
+            [self showHudWithText:jsonData[@"info"]];
+        }
         button.selected = YES;
     } fail:^(NSError *error) {
-        
+        [self showHudWithText:@"评论失败!"];
     }];
     
-    HJLog(@"点赞");
+//    HJLog(@"点赞");
     if (button.selected) return;
     button.selected = YES;
     
@@ -179,12 +187,23 @@
     NSString * url = [NSString stringWithFormat:COMMON_URL,REPLY_URL];
     NSMutableDictionary * dic = [NSMutableDictionary dictionary];
     [dic setValue:self.model.gcmId forKey:@"gmid"];
-    [dic setValue:[[NSUserDefaults standardUserDefaults] valueForKey:@"userid"] forKey:@"userid"];
+    if ([self isLogin]) {
+        [dic setValue:[[NSUserDefaults standardUserDefaults] valueForKey:@"userid"] forKey:@"userid"];
+    }
+
     if (isReply) {
         [dic setValue:currentModel.messageId forKey:@"newid"];
     }
-    [dic setValue:content forKey:@"content"];
+    
+    if (content.length) {
+        [dic setValue:content forKey:@"content"];
+    }else{
+        [self showHudWithText:@"评论内容不能为空"];
+        return;
+    }
+    
     HJRequestTool * tool = [[HJRequestTool alloc]init];
+    
     [tool postJSONWithUrl:url parameters:dic success:^(id responseObject) {
         
         NSDictionary * jsonData = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
@@ -204,11 +223,13 @@
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
     return 6;
 }
+
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
     if (section == 5)
         return _dataSource.count;
     return 1;
 }
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     static NSString * reuseID = @"HJServiceDetailTableViewCell";
     HJServiceDetailTableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:reuseID];

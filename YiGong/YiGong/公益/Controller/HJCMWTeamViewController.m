@@ -41,7 +41,14 @@
 }
 - (void)createUI{
     self.view.backgroundColor = [UIColor whiteColor];
-    CGRect rect = CGRectMake(0, 0, SCREEN_WIDTH , SCREEN_HEIGHT - 64 - 49);
+    
+    CGRect rect ;
+    if (self.userid.length) {
+        rect = CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT - 64);
+        
+    }else{
+        rect = CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT - 64 - 49);
+    }
     self.tableV = [[UITableView alloc]initWithFrame:rect style:UITableViewStyleGrouped];
     self.tableV.delegate = self;
     self.tableV.dataSource = self;
@@ -71,8 +78,10 @@
     
     HJRequestTool * tool = [[HJRequestTool alloc]init];
     NSString * url = [NSString stringWithFormat:COMMON_URL,TEAM_URL];
-
-    [tool postJSONWithUrl:url parameters:nil success:^(id responseObject) {
+    NSMutableDictionary * dic = [NSMutableDictionary dictionary];
+    if (self.userid && _isAll)
+        [dic setObject:self.userid forKey:@"userid"];
+    [tool postJSONWithUrl:url parameters:dic success:^(id responseObject) {
         [_dataSource removeAllObjects];
 //        HJLog(@"%@",responseObject);
         NSDictionary * jsonData = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];

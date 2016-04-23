@@ -11,4 +11,8 @@
 @interface HJCMWActivityViewController : HJRootViewController
 /** 隐藏导航栏*/
 @property (nonatomic, copy) void(^hideNavigationBar)(BOOL);
+/** userid*/
+@property (nonatomic, copy) NSString *userid;
+/** 是否获取全部*/
+@property(nonatomic, assign) BOOL isAll;
 @end

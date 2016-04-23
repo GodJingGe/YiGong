@@ -15,9 +15,7 @@
 #define IMAGE_SIZE (SCREEN_WIDTH - 60)/4
 
 @interface HJPickerImageViewController ()<UITextViewDelegate,UITableViewDelegate,UITableViewDataSource,TZImagePickerControllerDelegate>
-{
-    MBProgressHUD * hud;
-}
+
 /** 文本输入框*/
 @property(nonatomic, strong)    HJInputView *inputV;
 /** UITableView*/
@@ -49,26 +47,19 @@
         NSData * imageData = UIImageJPEGRepresentation(_imageDataSource[i], 0.1);
         [dic setValue:imageData forKey:[NSString stringWithFormat:@"file%d",i]];
     }
-    [self showHUD];
+    [tool showLoadingHudWithTitle:@"正在上传..." OnView:self.view];
     NSMutableArray * images = [NSMutableArray arrayWithArray:_imageDataSource];
     [images removeLastObject];
     [tool postFileWithUrl:url file:images parameters:dic success:^(id responseObject) {
-        //        hud.mode = MBProgressHUDModeText;
-        //        hud.labelText = @"上传成功！";
-        //        [hud hide:YES afterDelay:1];
+        [tool.hud hide:YES];
         [self showHudWithText:@"上传成功！"];
         HJLog(@"上传成功！");
     } fail:^(NSError *error) {
+        [self showHudWithText:@"上传失败"];
         HJLog(@"%@",error);
     }];
 }
 
-- (void)showHUD{
-    hud = [[MBProgressHUD alloc]init];
-    hud.labelText = @"正在上传";
-    [self.tabelV addSubview:hud];
-    [hud show: YES];
-}
 
 /**
  *  完成选择

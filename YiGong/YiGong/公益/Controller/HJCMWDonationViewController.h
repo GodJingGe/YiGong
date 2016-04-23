@@ -9,5 +9,8 @@
 #import "HJRootViewController.h"
 
 @interface HJCMWDonationViewController : HJRootViewController
-
+/** userid*/
+@property (nonatomic, copy) NSString *userid;
+/** 是否获取全部*/
+@property(nonatomic, assign) BOOL isAll;
 @end

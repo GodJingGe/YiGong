@@ -45,7 +45,7 @@
     if (!_placeholderLabel) {
         _placeholderLabel = [[UILabel alloc]init];
         _placeholderLabel.frame = CGRectMake(10, 5, SCREEN_WIDTH, 22);
-        _placeholderLabel.text = @"回复";
+        _placeholderLabel.text = self.placeText;
         _placeholderLabel.textColor = HJRGBA(204, 204, 204, 1.0);
         _placeholderLabel.font = [UIFont systemFontOfSize:14];
        

@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "HJRegisterModel.h"
 
 @interface HJAccountView : UIView
 #pragma mark --------------Property
@@ -28,7 +29,10 @@
 @property(nonatomic, strong) UIButton *nextBtn;
 /** 是否是注册*/
 @property(nonatomic, assign) BOOL isRegister;
-
+/** 模型*/
+@property(nonatomic, strong) HJRegisterModel *model;
+/** 计数器*/
+@property(nonatomic, assign) NSInteger mTime;
 #pragma mark --------------Block
 /** 下一步Block*/
 @property (nonatomic, copy) void (^nextBlock)(NSString *,NSString *);

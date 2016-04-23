@@ -104,7 +104,6 @@
 - (void)setModel:(HJDonationModel *)model{
     
     _model = model;
-    HJLog(@"%@",model.images);
     if (!_indexPath.section) {
         
         if (_isAvatar) {
@@ -113,6 +112,8 @@
         }else if (model.images.count){
             NSURL * url = [NSURL URLWithString:[NSString stringWithFormat:COMMON_IMAGE_URL,model.images[0].imageUrl]];
             [self.iconImageView sd_setImageWithURL:url];
+        }else{
+            self.iconImageView.image = [[UIImage alloc]init];
         }
         
         self.titleLabel.text = model.title;

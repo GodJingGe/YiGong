@@ -13,6 +13,7 @@
 #import "HJPickerImageViewController.h"
 #import "HJTakePartInViewController.h"
 #import "HJImageBrowserViewController.h"
+#import "HJLoginViewController.h"
 #import "HJMainImageModel.h"
 #import "HJPartakeModel.h"
 #import "HJCommentModel.h"
@@ -23,11 +24,12 @@
 #define COMMENT_URL @"vanlist"                  // 评论列表
 #define PRAISE_URL  @"vapadd"                   // 活动点赞
 #define REPLY_URL   @"vanadd"                   // 活动回复
+#define JOIN_URL    @"vae"                      // 活动报名
 
 @interface HJCMWDetailViewController ()<UITableViewDelegate,UITableViewDataSource>
 {
     BOOL isReply;
-    HJCommentModel * currentModel;
+   
 }
 /** 标签栏*/
 @property(nonatomic, strong) HJDetailTabbar *tabbar;
@@ -51,7 +53,10 @@
 @property(nonatomic, strong) HJDetailTableViewCell *cell;
 /** 输入工具栏*/
 @property(nonatomic, strong) HJInputToolBar *inputToolBar;
-
+/** 请求体字段*/
+@property(nonatomic, strong) NSMutableDictionary * dic;
+/** 当前模型*/
+@property(nonatomic, strong)  HJCommentModel * currentModel;
 @end
 
 @implementation HJCMWDetailViewController
@@ -112,9 +117,11 @@
     NSString * url = [NSString stringWithFormat:COMMON_URL,PARTAKE_URL];
     // 开始数据请求
     
+    [request showLoadingHudWithTitle:@"Loading..." OnView:self.view];
     // 报名情况
     [request postJSONWithUrl:url parameters:dic success:^(id responseObject) {
 //        HJLog(@"%@",responseObject);
+        [request.hud hide:YES];
         NSDictionary *dataDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
         NSArray * arr = dataDic[@"pd"];
         for (NSDictionary * dict in arr) {
@@ -124,6 +131,7 @@
         [_tableV reloadData];
 
     } fail:^(NSError *error) {
+        [request.hud hide:YES];
         HJLog(@"%@",error);
     }];
     
@@ -140,7 +148,10 @@
     NSDictionary * dic = [NSDictionary dictionaryWithObject:_mainModel.activityId forKey:@"vaid"];
     HJRequestTool * imageRequest = [[HJRequestTool alloc]init];
     NSString * imageUrl = [NSString stringWithFormat:COMMON_URL,REVIEW_URL];
+    [imageRequest showLoadingHudWithTitle:@"Loading..." OnView:self.view];
     [imageRequest postJSONWithUrl:imageUrl parameters:dic success:^(id responseObject) {
+        
+        [imageRequest.hud hide:YES];
         
         NSDictionary *dataDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
         NSArray * arr = dataDic[@"pd"];
@@ -162,7 +173,7 @@
         
         [_tableV reloadData];
     } fail:^(NSError *error) {
-        
+         [imageRequest.hud hide:YES];
     }];
 }
 - (void)requestCommentList{
@@ -171,6 +182,10 @@
      NSDictionary * dic = [NSDictionary dictionaryWithObject:_mainModel.activityId forKey:@"vaid"];
     HJRequestTool * commentRequest = [[HJRequestTool alloc]init];
     NSString * commentUrl = [NSString stringWithFormat:COMMON_URL,COMMENT_URL];
+    
+    // 显示菊花
+    [commentRequest showLoadingHudWithTitle:@"Loading..." OnView:self.view];
+    
     [commentRequest postJSONWithUrl:commentUrl parameters:dic success:^(id responseObject) {
         
         NSDictionary *dataDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
@@ -186,10 +201,14 @@
             model.type = @"2";
             [_commentDatas addObject:model];
         }
+        // 隐藏菊花
+        [commentRequest.hud hide:YES];
+        // 刷新列表
         [_tableV reloadData];
         
     } fail:^(NSError *error) {
-        
+        // 隐藏菊花
+        [commentRequest.hud hide:YES];
     }];
 }
 
@@ -238,9 +257,11 @@
             
             __weak typeof(self) weakSelf = self;
             [_cell.commentView setReplyBlock:^{
-                currentModel = _commentDatas[indexPath.row];
+                weakSelf.currentModel = weakSelf.commentDatas[indexPath.row];
+                NSString *string = [NSString stringWithFormat:@"回复@%@:",weakSelf.currentModel.nickName];
                 isReply = YES;
-                [weakSelf commentAction];
+                
+                [weakSelf commentAction:string];
             }];
             break;
     }
@@ -358,7 +379,7 @@
     _tabbar = [[HJDetailTabbar alloc]initWithCommentAction:^{
         // 评论事件
         isReply = NO;
-        [self commentAction];
+        [self commentAction:@"回复"];
     } andTakePartInAction:^{
         // 跳转到报名详情
         [self partakeActivityAction];
@@ -416,36 +437,100 @@
     HJRequestTool * tool = [[HJRequestTool alloc]init];
     NSString * url =[NSString stringWithFormat:COMMON_URL,PRAISE_URL];
     NSMutableDictionary * dic = [NSMutableDictionary dictionaryWithObject:_mainModel.activityId forKey:@"vaid"];
-    [dic setValue:[[NSUserDefaults standardUserDefaults] valueForKey:@"userid"] forKey:@"userid"];
+    NSString * userid = [[NSUserDefaults standardUserDefaults] valueForKey:@"userid"];
+    if ([self isLogin]) {
+        [dic setValue:userid forKey:@"userid"];
+    }else{
+        return;
+    }
     
+    [tool showLoadingHudWithTitle:@"" OnView:self.view];
     [tool postJSONWithUrl:url parameters:dic success:^(id responseObject) {
         NSDictionary * jsondata = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
         HJLog(@"%@",jsondata);
+        [tool.hud hide:YES];
         [self showHudWithText:jsondata[@"info"]];
     } fail:^(NSError *error) {
-        
+        [tool.hud hide:YES];
     }];
     button.selected = YES;
     
 }
+- (void)createAlertControllerWithTitle:(NSString *)title{
+   
+    UIAlertController * alertVC = [UIAlertController alertControllerWithTitle:@"提示" message:title preferredStyle: UIAlertControllerStyleAlert];
+    UIAlertAction * ok = [UIAlertAction actionWithTitle:@"好的" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        HJLoginViewController * loginVC = [[HJLoginViewController alloc]init];
+        [self.navigationController pushViewController:loginVC animated:YES];
+    }];
+    UIAlertAction * cancel = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
+    [alertVC addAction:ok];
+    [alertVC addAction:cancel];
+    [self presentViewController:alertVC animated:YES completion:nil];
 
+}
 // tabbar点击事件
-- (void)commentAction{
+- (void)commentAction:(NSString *)replyNickName{
+    self.inputToolBar.placeholderLabel.text = replyNickName;
     [self.inputToolBar.textView becomeFirstResponder];
     
 }
+
+- (void)partakeActivityAction{
+    
+    NSString * url = [NSString stringWithFormat:COMMON_URL,JOIN_URL];
+    NSMutableDictionary * dic = [NSMutableDictionary dictionary];
+    if ([self isLogin]) {
+        [dic setValue:[[NSUserDefaults standardUserDefaults] valueForKey:@"userid"] forKey:@"userid"];
+    }else{
+        return;
+    }
+    
+    [dic setValue:_mainModel.activityId forKey:@"vaid"];
+    HJRequestTool * tool = [[HJRequestTool alloc]init];
+    [tool postJSONWithUrl:url parameters:dic success:^(id responseObject) {
+        
+        NSDictionary * jsonData = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
+        HJLog(@"%@",jsonData);
+        if ([jsonData[@"result"] isEqualToString:@"01"]) {
+            [self showHudWithText:@"报名成功"];
+        }else{
+            [self showHudWithText:jsonData[@"info"]];
+        }
+        self.tableV.contentOffset = CGPointMake(0, self.tableV.contentSize.height - SCREEN_HEIGHT + 64);
+    } fail:^(NSError *error) {
+        [self showHudWithText:@"报名失败"];
+    }];
+//    HJTakePartInViewController * takePartInVC = [[HJTakePartInViewController alloc]init];
+//    [self.navigationController pushViewController:takePartInVC animated:YES];
+    
+}
+
+
 
 // 提交评论
 - (void)commitAction:(NSString *)content{
     
     NSString * url = [NSString stringWithFormat:COMMON_URL,REPLY_URL];
     NSMutableDictionary * dic = [NSMutableDictionary dictionary];
-    [dic setValue:[[NSUserDefaults standardUserDefaults] valueForKey:@"userid"] forKey:@"userid"];
+    if ([self isLogin]) {
+        [dic setValue:[[NSUserDefaults standardUserDefaults] valueForKey:@"userid"] forKey:@"userid"];
+    }else{
+        return ;
+    }
+    
     [dic setValue:_mainModel.activityId forKey:@"vaid"];
     if (isReply) {
-        [dic setValue:currentModel.messageId forKey:@"newid"];
+        [dic setValue:_currentModel.messageId forKey:@"newid"];
     }
-    [dic setValue:content forKey:@"content"];
+    
+    if (content.length) {
+        [dic setValue:content forKey:@"content"];
+    }else{
+        [self showHudWithText:@"评论内容不能为空"];
+        return;
+    }
+    
     HJRequestTool * tool = [[HJRequestTool alloc]init];
     [tool postJSONWithUrl:url parameters:dic success:^(id responseObject) {
         
@@ -462,10 +547,6 @@
     }];
 }
 
-- (void)partakeActivityAction{
-    HJTakePartInViewController * takePartInVC = [[HJTakePartInViewController alloc]init];
-    [self.navigationController pushViewController:takePartInVC animated:YES];
-}
 
 #pragma mark --------------SystemDelegate
 

@@ -22,27 +22,38 @@
 /** 当前编辑的cell*/
 @property(nonatomic, strong) HJAssessTableViewCell *currentCell;
 /** 文本框标识*/
-@property(nonatomic,assign) NSInteger textTag;
+@property(nonatomic, assign) NSInteger textTag;
 /** 当前位置*/
-@property(nonatomic,assign)CGPoint currentOffset;
+@property(nonatomic, assign) CGPoint currentOffset;
 /**评测得分数据源*/
-@property(nonatomic,strong)NSMutableArray *scoreDataSource;
+@property(nonatomic, strong) NSMutableArray *scoreDataSource;
 /** 请求数据工具类*/
-@property(nonatomic,strong)HJRequestTool *request;
+@property(nonatomic, strong) HJRequestTool *request;
 /** 请求地址*/
-@property(nonatomic,strong)NSString *requestPath;
+@property(nonatomic, strong) NSString *requestPath;
 /** 是否正在刷新*/
 @property(nonatomic, assign) Boolean isRefreshing;
+/** 键盘消失视图*/
+@property(nonatomic, strong) UIView *keyBoardView;
 
 @end
 
 @implementation HJGCMAssessViewController
 
+- (UIView *)keyBoardView{
+    if (!_keyBoardView) {
+        _keyBoardView = [[UIView alloc]init];
+        _keyBoardView.frame = CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+//        _keyBoardView.backgroundColor = [UIColor cyanColor];
+    }
+    return _keyBoardView;
+}
 - (void)viewDidLoad{
     [super viewDidLoad];
     [self createValue];
     [self createUI];
 }
+
 
 - (void)createValue{
     _dataSource = [NSMutableArray array];
@@ -71,10 +82,10 @@
     }];
     
     UITapGestureRecognizer *gestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideKeyboard)];
-    [self.tableV addGestureRecognizer:gestureRecognizer];
+    [self.keyBoardView addGestureRecognizer:gestureRecognizer];
     
     //ps:加上这句不会影响你 tableview 上的 action (button,cell selected...)
-    gestureRecognizer.cancelsTouchesInView = NO;
+//    gestureRecognizer.cancelsTouchesInView = NO;
     
 }
 
@@ -126,10 +137,10 @@
     [footer.footerBtn setTitle:@"提交" forState:UIControlStateNormal];
     return footer;
 }
+
 #pragma mark -----------UITableViewDelegate
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     _currentCell = [self.tableV cellForRowAtIndexPath:indexPath];
-    [_currentCell.scoreTF resignFirstResponder];
 }
 
 // 初始化cell
@@ -139,12 +150,13 @@
     if (cell == nil) {
         
         cell = [[HJAssessTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseID];
-        cell.model = _dataSource[indexPath.row];
-        [cell setHiddenKeyBoardBlock:^(HJAssessTableViewCell *currentCell) {
-            _currentCell = currentCell;
-        }];
+        
     }
-    
+    cell.model = _dataSource[indexPath.row];
+    [cell setHiddenKeyBoardBlock:^(HJAssessTableViewCell *currentCell) {
+        _currentCell = currentCell;
+        [self.navigationController.view addSubview:self.keyBoardView];
+    }];
     return cell;
 }
 
@@ -202,6 +214,7 @@
 #pragma mark --------------UITapGestureRecognizer
 // 隐藏键盘
 - (void) hideKeyboard {
+    [self.keyBoardView removeFromSuperview];
     [_currentCell.scoreTF resignFirstResponder];
 }
 @end

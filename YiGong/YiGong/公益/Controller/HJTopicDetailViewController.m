@@ -170,12 +170,24 @@
     
     NSString * url = [NSString stringWithFormat:COMMON_URL,REPLY_URL];
     NSMutableDictionary * dic = [NSMutableDictionary dictionary];
-    [dic setValue:[[NSUserDefaults standardUserDefaults] valueForKey:@"userid"] forKey:@"userid"];
+    
+    if ([self isLogin]) {
+        [dic setValue:[[NSUserDefaults standardUserDefaults] valueForKey:@"userid"] forKey:@"userid"];
+    }else{
+        return;
+    }
+    
     [dic setValue:self.topicModel.topicId forKey:@"vttid"];
     if (isReply) {
         [dic setValue:currentModel.messageId forKey:@"newid"];
     }
-    [dic setValue:content forKey:@"content"];
+    if (content.length) {
+         [dic setValue:content forKey:@"content"];
+    }else{
+        [self showHudWithText:@"内容不能为空"];
+        return;
+    }
+   
     HJRequestTool * tool = [[HJRequestTool alloc]init];
     [tool postJSONWithUrl:url parameters:dic success:^(id responseObject) {
         
@@ -194,6 +206,7 @@
 
 - (void) hideKeyboard{
     [self.inputToolBar.textView resignFirstResponder];
+    
 }
 
 // 纯文本提示框

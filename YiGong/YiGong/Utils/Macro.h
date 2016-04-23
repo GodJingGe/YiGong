@@ -22,6 +22,6 @@
 /**
  *  请求地址
  */
-#define COMMON_URL @"http://192.168.0.67:7080/aihu_web/appzzy2/%@"
-#define COMMON_IMAGE_URL @"http://192.168.0.67:7080/aihu_web/uploadFiles/uploadImgs/%@"
+#define COMMON_URL @"http://192.168.0.104:7080/aihu_web/appzzy2/%@"
+#define COMMON_IMAGE_URL @"http://192.168.0.104:7080/aihu_web/uploadFiles/uploadImgs/%@"
 #endif /* Macro_h */

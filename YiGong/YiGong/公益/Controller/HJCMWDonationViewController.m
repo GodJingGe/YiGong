@@ -44,7 +44,11 @@
     
     HJRequestTool * request = [[HJRequestTool alloc]init];
     NSString * url= [NSString stringWithFormat:COMMON_URL,DONATION_URL];
-    NSDictionary * dic = [NSDictionary dictionary];
+    NSMutableDictionary * dic = [NSMutableDictionary dictionary];
+    if (self.userid && _isAll){
+        [dic setObject:self.userid forKey:@"userid"];
+    }
+    
     [request postJSONWithUrl:url parameters:dic success:^(id responseObject) {
         [_dataSource removeAllObjects];
         NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
@@ -62,11 +66,19 @@
 
 - (void)createUI{
     self.view.backgroundColor = [UIColor whiteColor];
-    CGRect rect = CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT - 64);
+    CGRect rect ;
+    if (self.userid.length) {
+        rect = CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT - 64);
+        
+    }else{
+        rect = CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT - 64 - 49);
+    }
+
     self.tableV = [[UITableView alloc]initWithFrame:rect style:UITableViewStyleGrouped];
     self.tableV.delegate = self;
     self.tableV.dataSource = self;
     self.tableV.rowHeight = 90;
+    
     
     // 添加下拉刷新和上拉加载视图
     self.tableV.mj_header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
@@ -102,10 +114,11 @@
     HJDonationTableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:reuseID];
     if (!cell) {
         cell = [[HJDonationTableViewCell alloc]initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:reuseID];
-        cell.indexPath = indexPath;
-        cell.isAvatar = NO;
-        cell.model = _dataSource[indexPath.row];
-    }
+        }
+    cell.indexPath = indexPath;
+    cell.isAvatar = NO;
+    cell.model = _dataSource[indexPath.row];
+
     return cell;
 }
 

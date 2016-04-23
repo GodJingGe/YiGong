@@ -40,6 +40,8 @@
     [super viewDidLoad];
     [self createValue];
      [self createUI];
+    
+    HJLog(@"%f,%f",[[UIScreen mainScreen] bounds].size.width,[[UIScreen mainScreen] bounds].size.height);
 }
 
 #pragma mark --------------CreateByMyself
@@ -54,10 +56,12 @@
     _dataSource = [NSMutableArray array];
     
 }
+
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
     if ([keyPath isEqualToString:@"text"]) {
-        NSLog(@"Height is changed! new=%@", [change valueForKey:NSKeyValueChangeNewKey]);
+//        NSLog(@"Height is changed! new=%@", [change valueForKey:NSKeyValueChangeNewKey]);
+        [self.hud hide:YES];
         [self loadData];
         [_locationLabel removeObserver:self forKeyPath:@"text"];
     } else {
@@ -67,7 +71,7 @@
 - (void)createUI{
     
     _locationLabel = [[HJLocationLabel alloc]init];
-    
+    [self showLoadingHudWithTitle:@"正在定位" OnView:self.view];
     [_locationLabel addObserver:self forKeyPath:@"text" options:NSKeyValueObservingOptionNew context:nil];
     
     [self.navigationController.navigationBar addSubview:_locationLabel];
@@ -104,6 +108,7 @@
     NSString * url= [NSString stringWithFormat:COMMON_URL,MAIN_URL];
     NSMutableDictionary * dic = [NSMutableDictionary dictionary];
     [dic setValue:_locationLabel.text forKey:@"city"];
+    [request showLoadingHudWithTitle:@"Loading..." OnView:self.view];
     [request postJSONWithUrl:url parameters:dic success:^(id responseObject) {
         [_dataSource removeAllObjects];
 //        HJLog(@"%@",responseObject);
@@ -114,9 +119,17 @@
             [_dataSource addObject:model];
             HJLog(@"%@",model.activityTime);
         }
+        [request.hud hide:YES];
         [_tableV reloadData];
     } fail:^(NSError *error) {
-        
+        request.hud.mode = MBProgressHUDModeText;
+        if ([error code] == -1001) {
+            request.hud.labelText = @"请求超时~";
+            
+        }else{
+            request.hud.labelText = @"请求失败,请重试~";
+        }
+        [request.hud hide:YES afterDelay:1];
     }];
 }
 

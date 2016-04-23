@@ -48,8 +48,18 @@
     
     HJRequestTool * tool = [[HJRequestTool alloc]init];
     NSString * url = [NSString stringWithFormat:COMMON_URL,FEDBACK_URL];
-    NSMutableDictionary * para = [NSMutableDictionary dictionaryWithObject:self.inputView.textV.text forKey:@"content"];
-    [para setObject:[[NSUserDefaults standardUserDefaults] valueForKey:@"userid"] forKey:@"userid"];
+    NSMutableDictionary * para = [NSMutableDictionary dictionary];
+    
+    
+    if ([self isLogin]){
+        [para setObject:[[NSUserDefaults standardUserDefaults] valueForKey:@"userid"] forKey:@"userid"];
+        if (self.inputView.textV.text.length)
+            [para setObject:self.inputView.textV.text forKey:@"content"];
+        else
+            [self showHudWithText:@"反馈内容不能为空"];
+    }
+    else return;
+    
     [tool postJSONWithUrl:url parameters:para success:^(id responseObject) {
         NSDictionary * jsonData = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
         if (jsonData[@"result"]) {
@@ -58,7 +68,7 @@
             self.inputView.textV.text = @"";
         }
     } fail:^(NSError *error) {
-        
+        [self showHudWithText:@"提交失败"];
     }];
     
     

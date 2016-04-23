@@ -39,8 +39,9 @@
     
     HJTabBarViewController * tabVC = [[HJTabBarViewController alloc]init];
 //    NSInteger inter=[[NSUserDefaults standardUserDefaults] integerForKey:@"first"];
-    [[NSUserDefaults standardUserDefaults]setObject:@"8eaf33d79281470b8d00160e287a9350" forKey:@"userid"];
-    [[NSUserDefaults standardUserDefaults]setObject:@"f4686e2c547c415484b1efbf623893c7" forKey:@"vtid"];
+//    [[NSUserDefaults standardUserDefaults]setObject:@"8eaf33d79281470b8d00160e287a9350" forKey:@"userid"];
+//    [[NSUserDefaults standardUserDefaults]setObject:@"f4686e2c547c415484b1efbf623893c7" forKey:@"vtid"];
+    
     self.window.rootViewController = tabVC;
     
 //    if(inter){

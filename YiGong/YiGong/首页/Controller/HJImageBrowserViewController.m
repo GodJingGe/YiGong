@@ -26,13 +26,13 @@
 }
 
 - (void)createUI{
-    self.title = [NSString stringWithFormat:@"%d/%d",_currentOffset ,(int)_images.count - 1];
+    self.title = [NSString stringWithFormat:@"%d/%d",_currentOffset ,(int)_images.count ];
     self.automaticallyAdjustsScrollViewInsets = NO;
     self.view.backgroundColor = [UIColor blackColor];
     
     _scrollView = [[HJImageScrollView alloc]init];
     _scrollView.delegate = self;
-    _scrollView.contentSize = CGSizeMake((SCREEN_WIDTH + 20) * (_images.count - 1), SCREEN_HEIGHT - 64);
+    _scrollView.contentSize = CGSizeMake((SCREEN_WIDTH + 20) * _images.count, SCREEN_HEIGHT - 64);
     _scrollView.contentOffset = CGPointMake((_currentOffset - 1) * (SCREEN_WIDTH + 20), 0);
     [self.view addSubview:_scrollView];
     
@@ -64,7 +64,7 @@
 // 为SCrollView添加图片
 - (void)createImageForScrollView{
     
-    for (int i = 0; i < _images.count-1; i ++) {
+    for (int i = 0; i < _images.count; i ++) {
         UIImageView * imageView = [[UIImageView alloc]init];
         UIImage * image = _images[i];
         imageView.frame = CGRectMake((SCREEN_WIDTH + 20) * i, (_scrollView.frame.size.height - IMAGE_HEIHT)/2, SCREEN_WIDTH, IMAGE_HEIHT);
@@ -76,7 +76,7 @@
 #pragma mark --------------UIScrollViewDelegate
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
     _currentOffset = scrollView.contentOffset.x/SCREEN_WIDTH + 1;
-    self.title = [NSString stringWithFormat:@"%d/%d",_currentOffset ,(int)_images.count - 1];
+    self.title = [NSString stringWithFormat:@"%d/%d",_currentOffset ,(int)_images.count];
 }
 
 #pragma mark --------------ViewLifeCycle

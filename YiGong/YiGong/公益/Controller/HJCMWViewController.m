@@ -42,7 +42,7 @@
     self.view.backgroundColor = [UIColor whiteColor];
     self.navigationItem.title = @"公益";
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc]initWithImage:[UIImage imageNamed:@"location"] style:UIBarButtonItemStyleDone target:self action:@selector(changeSite)];
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithImage:[UIImage imageNamed:@"search"] style:UIBarButtonItemStyleDone target:self action:@selector(searchAction)];
+//    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithImage:[UIImage imageNamed:@"search"] style:UIBarButtonItemStyleDone target:self action:@selector(searchAction)];
     
     _teamVC = [[HJCMWTeamViewController alloc]init];
     _teamVC.title = @"公益团队";
@@ -72,7 +72,8 @@
     navTabBarController.navTabBarColor = [UIColor whiteColor];
     [navTabBarController setChangeRightItem:^(NSInteger item) {
         if (item == 0) {
-            self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithImage:[UIImage imageNamed:@"search"] style:UIBarButtonItemStyleDone target:self action:@selector(searchAction)];
+//            self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithImage:[UIImage imageNamed:@"search"] style:UIBarButtonItemStyleDone target:self action:@selector(searchAction)];
+            return ;
         }else if(item == 2){
             self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithImage:[UIImage imageNamed:@"add"] style:UIBarButtonItemStyleDone target:self action:@selector(addDonationAction)];
         }else{

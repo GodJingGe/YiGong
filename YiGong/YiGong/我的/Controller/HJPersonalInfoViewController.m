@@ -11,7 +11,7 @@
 #import "HJPersonalModel.h"
 #import "HJDatePickerView.h"
 #import "HJFooterView.h"
-#define USER_INFO
+#define USEREDIT @"uedit"
 
 @interface HJPersonalInfoViewController ()<UITableViewDelegate,UITableViewDataSource,UIImagePickerControllerDelegate,UINavigationControllerDelegate>
 @property(nonatomic, strong) UITableView *tableV;
@@ -25,8 +25,6 @@
 @property(nonatomic, strong) UIAlertController * alertVC;
 /** alertInput*/
 @property(nonatomic, strong) UIAlertController * inputAlertVC;
-/** 个人模型数据*/
-@property(nonatomic, strong) NSMutableDictionary *parameters;
 
 @end
 
@@ -48,7 +46,6 @@
     
 }
 - (void)loadData{
-    _parameters = [self.model mj_keyValues];
     _dataSource = [NSMutableArray array];
     NSArray * titles = @[@"头像",@"昵称",@"性别",@"出生年月",@"手机号码",@"通讯地址",@"从事工作",@"个性签名"];
     [_dataSource addObjectsFromArray:titles];
@@ -115,7 +112,6 @@
             _datePicker = [[HJDatePickerView alloc]initAndGetTime:^(NSString *timeDate) {
                 _currentCell.detailLabel.text = [[timeDate componentsSeparatedByString:@" "] firstObject];
                 _model.birthday = _currentCell.detailLabel.text;
-                [_parameters setObject:_currentCell.detailLabel.text forKey:@"BIRTH"];
             }];
             _datePicker.datePicker.datePickerMode = UIDatePickerModeDate;
         }
@@ -141,8 +137,51 @@
 
 - (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
     HJFooterView * footer = [[HJFooterView alloc]initWithAction:^{
+        NSMutableDictionary * parameters = [NSMutableDictionary dictionary];
+        [parameters setObject:[[NSUserDefaults standardUserDefaults] valueForKey:@"userid"] forKey:@"userid"];
+        if (_model.nickName) {
+            [parameters setObject:_model.nickName forKey:@"username"];
+        }
+        if (_model.phoneNum) {
+            [parameters setObject:_model.phoneNum forKey:@"tel"];
+        }
+        
+        if (_model.birthday) {
+            [parameters setObject:_model.birthday forKey:@"birth"];
+        }
+        if (_model.address) {
+            [parameters setObject:_model.address forKey:@"address"];
+        }
+        
+        if (_model.signature) {
+            [parameters setObject:_model.signature forKey:@"sign"];
+        }
+        if (_model.sex) {
+            [parameters setObject:_model.sex forKey:@"gender"];
+        }
+        if (_model.career) {
+            [parameters setObject:_model.career forKey:@"job"];
+        }
+        
+        NSData * data = UIImageJPEGRepresentation(_model.newavatar, 0.1);
+        [parameters setObject:data forKey:@"file0"];
+
+        HJRequestTool * tool = [[HJRequestTool alloc]init];
+        NSString * url = [NSString stringWithFormat:COMMON_URL,USEREDIT];
+        [tool postFileWithUrl:url file:[NSMutableArray arrayWithObject:_model.newavatar] parameters:parameters success:^(id responseObject) {
+           
+            NSDictionary * jsonData = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
+            if ([jsonData[@"result"] isEqualToString:@"01"]) {
+                [self showHudWithText:@"保存成功"];
+            }
+            
+        } fail:^(NSError *error) {
+            [self showHudWithText:@"保存失败"];
+        }];
         HJLog(@"保存信息");
     }];
+    
+    
     [footer.footerBtn setTitle:@"保存" forState:UIControlStateNormal];
     return footer;
 }
@@ -193,23 +232,27 @@
             _currentCell.detailLabel.text = _inputAlertVC.textFields[0].text;
             switch (_currentCell.indexPath.row) {
                 case 1:
-                    [_parameters setObject:_currentCell.detailLabel.text forKey:@"USERNAME"];
+                    _model.nickName = _currentCell.detailLabel.text;
+                    
                     break;
                     
                 case 4:
-                    [_parameters setObject:_currentCell.detailLabel.text forKey:@"PHONE"];
+                     _model.phoneNum = _currentCell.detailLabel.text;
+                    
                     break;
                     
                 case 5:
-                    [_parameters setObject:_currentCell.detailLabel.text forKey:@"ADDRESS"];
+                     _model.address = _currentCell.detailLabel.text;
+                    
                     break;
                     
                 case 6:
-                    [_parameters setObject:_currentCell.detailLabel.text forKey:@"JOB"];
+                     _model.career = _currentCell.detailLabel.text;
                     break;
                     
                 case 7:
-                    [_parameters setObject:_currentCell.detailLabel.text forKey:@"SIGN"];
+                     _model.signature = _currentCell.detailLabel.text;
+                    
                     break;
             }
         }
@@ -228,8 +271,10 @@
     UIAlertController * alertVC = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
     for (NSString * title in titles) {
         UIAlertAction * action = [UIAlertAction actionWithTitle:title style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-            [_parameters setObject:title forKey:@"GENDER"];
+            
             _currentCell.detailLabel.text = title;
+            _model.sex = title;
+            
         }];
         [alertVC addAction:action];
     }
@@ -239,11 +284,12 @@
 // 相机相册获取回调代理
 #pragma mark UIImagePickerControllerDelegate
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info{
+    
     UIImage * image = [info objectForKey:UIImagePickerControllerEditedImage];
     
     _currentCell.iconImageView.image = image;
     _model.newavatar = image;
-    
+   
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 

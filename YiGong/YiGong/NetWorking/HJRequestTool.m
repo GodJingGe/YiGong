@@ -47,6 +47,7 @@
     }];
 }
 
+
 /**
  *  POST请求数据
  *
@@ -72,7 +73,7 @@
 //    x-www-form-urlencoded
     manager.responseSerializer.acceptableContentTypes = [NSSet setWithObject:@"application/json"];
     
-    HJLog(@"Loading...");
+    
     
     [manager POST:urlStr parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         
@@ -80,7 +81,6 @@
         HJLog(@"success!");
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        
         fail(error);
         
     }];
@@ -114,10 +114,12 @@
     
     [manager POST:urlStr parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
         
-        for ( int i = 0; i < files.count ; i ++) {
-            NSString * name =[NSString stringWithFormat:@"file%d",i];
-            NSData * data = [parameters objectForKey:name];
-            [formData appendPartWithFileData:data name:name fileName:@"avatar.png" mimeType:@"image/png"];
+        if (files.count) {
+            for ( int i = 0; i < files.count ; i ++) {
+                NSString * name =[NSString stringWithFormat:@"file%d",i];
+                NSData * data = [parameters objectForKey:name];
+                [formData appendPartWithFileData:data name:name fileName:@"avatar.png" mimeType:@"image/png"];
+            }
         }
         
     
@@ -127,10 +129,28 @@
         
     } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
 
+        
             fail(error);
         
         }];
     
 }
+
+
+- (void)showLoadingHudWithTitle:(NSString *)text OnView:(UIView *)view{
+    self.hud = [[MBProgressHUD alloc]init];
+    self.hud.labelText = text;
+    [view addSubview:self.hud];
+    [self.hud show:YES];
+}
+
+- (void)showHudWithText:(NSString *)text Time:(NSInteger)time OnView:(UIView *)view{
+    self.hud = [[MBProgressHUD alloc]init];
+    self.hud.mode = MBProgressHUDModeText;
+    self.hud.labelText = text;
+    [view addSubview:self.hud];
+    [self.hud hide:YES afterDelay:time];
+}
+
 
 @end

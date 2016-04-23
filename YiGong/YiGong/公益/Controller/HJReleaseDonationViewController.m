@@ -221,12 +221,16 @@
     NSString * url = [NSString stringWithFormat:COMMON_URL,ADD_DONATION_URL];
     
     NSMutableDictionary * dic = [NSMutableDictionary dictionaryWithObject:[[NSUserDefaults standardUserDefaults] valueForKey:@"userid"] forKey:@"userid"];
+    if (title && target && _inputV.textV.text) {
+        [dic setObject:title forKey:@"title"];
+        [dic setObject:target forKey:@"target"];
+        [dic setObject:_inputV.textV.text forKey:@"content"];
+    }else{
+        [self createAlertControllerWithTitle:@"捐赠信息不能为空"];
+    }
     
-    [dic setObject:title forKey:@"title"];
-    [dic setObject:target forKey:@"target"];
-    [dic setObject:_inputV.textV.text forKey:@"content"];
-    
-    for (int i = 0 ; i < _imageDataSource.count - 1; i ++) {
+    [_imageDataSource removeLastObject];
+    for (int i = 0 ; i < _imageDataSource.count ; i ++) {
         NSData * imageData = UIImageJPEGRepresentation(_imageDataSource[i], 1.0);
         [dic setValue:imageData forKey:[NSString stringWithFormat:@"file%d",i]];
     }
@@ -241,7 +245,14 @@
     }];
     
 }
-
+- (void)createAlertControllerWithTitle:(NSString *)topic{
+    UIAlertController * alertVC = [UIAlertController alertControllerWithTitle:topic message:nil preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction * okAction = [UIAlertAction actionWithTitle:@"好的" style:UIAlertActionStyleDefault handler:nil];
+    [alertVC addAction:okAction];
+    [self presentViewController:alertVC animated:YES completion:^{
+       
+    }];
+}
 - (void)showHUD{
     hud = [[MBProgressHUD alloc]init];
     hud.labelText = @"正在发布";

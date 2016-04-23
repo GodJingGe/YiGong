@@ -42,6 +42,7 @@
     [_topicImageView sd_setImageWithURL:[NSURL URLWithString:url] completed:nil];
     _summaryView.model = model;
 }
+
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
     [super setSelected:selected animated:animated];
 

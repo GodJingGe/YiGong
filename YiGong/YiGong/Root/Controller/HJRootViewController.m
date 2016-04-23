@@ -7,9 +7,11 @@
 //
 
 #import "HJRootViewController.h"
+#import "HJLoginViewController.h"
 
 @interface HJRootViewController ()
-
+/** 上一张截图*/
+@property(nonatomic, strong) UIImage *lastImage;
 @end
 
 @implementation HJRootViewController
@@ -36,7 +38,7 @@
 - (void)createNavigationAbount{
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
     
-//    self.navigationController.navigationBar.barTintColor = HJRGBA(248,97,111,1.0);
+    //    self.navigationController.navigationBar.barTintColor = HJRGBA(248,97,111,1.0);
     [self.navigationController.navigationBar setBackgroundImage:[UIImage imageWithColor:HJRGBA(248,97,111,1.0)] forBarMetrics:UIBarMetricsDefault];
     
     [self.navigationController.navigationBar setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[UIColor whiteColor],NSForegroundColorAttributeName,[UIFont systemFontOfSize:20],NSFontAttributeName,nil]];
@@ -56,6 +58,22 @@
     [hud show:YES];
     [hud hide:YES afterDelay:1];
 }
+
+- (void)showLoadingHudWithTitle:(NSString *)text OnView:(UIView *)view{
+    self.hud = [[MBProgressHUD alloc]init];
+    self.hud.labelText = text;
+    [view addSubview:self.hud];
+    [self.hud show:YES];
+}
+
+- (void)showHudWithText:(NSString *)text Time:(NSInteger)time OnView:(UIView *)view{
+    self.hud = [[MBProgressHUD alloc]init];
+    self.hud.mode = MBProgressHUDModeText;
+    self.hud.labelText = text;
+    [view addSubview:self.hud];
+    [self.hud hide:YES afterDelay:time];
+}
+
 #pragma mark -=====自定义截屏位置大小的逻辑代码=====-
 
 -(UIImage *)ScreenShot{
@@ -66,11 +84,17 @@
     UIImage *viewImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     CGImageRef imageRef = viewImage.CGImage;
-    CGRect rect = CGRectMake(0, 0, SCREEN_WIDTH*2, SCREEN_HEIGHT*2);//这里可以设置想要截图的区域
+    CGRect rect;
+    if (SCREEN_WIDTH > 375) {
+        rect = CGRectMake(0, 0, SCREEN_WIDTH * 3, SCREEN_HEIGHT * 3);
+    }else{
+        rect = CGRectMake(0, 0, SCREEN_WIDTH*2, SCREEN_HEIGHT*2);//这里可以设置想要截图的区域
+    }
     CGImageRef imageRefRect =CGImageCreateWithImageInRect(imageRef, rect);
     UIImage *sendImage = [[UIImage alloc] initWithCGImage:imageRefRect];
-    
-    self.bgView.bgImageView.image = sendImage;
+    if (!_lastImage) {
+        _lastImage = sendImage;
+    }
     return sendImage;
     
     
@@ -109,8 +133,32 @@
     
 }
 
+- (BOOL)isLogin{
+    if ([[NSUserDefaults standardUserDefaults] valueForKey:@"userid"]) {
+        return YES;
+    }
+    [self createAlertControllerWithTitle:@"您还没有登录，是否立即前往？"];
+    return NO;
+}
+
+- (void)createAlertControllerWithTitle:(NSString *)title{
+    
+    UIAlertController * alertVC = [UIAlertController alertControllerWithTitle:@"提示" message:title preferredStyle: UIAlertControllerStyleAlert];
+    UIAlertAction * ok = [UIAlertAction actionWithTitle:@"立刻前往" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        HJLoginViewController * loginVC = [[HJLoginViewController alloc]init];
+        [self.navigationController pushViewController:loginVC animated:YES];
+    }];
+    UIAlertAction * cancel = [UIAlertAction actionWithTitle:@"稍后再说" style:UIAlertActionStyleDefault handler:nil];
+    [alertVC addAction:cancel];
+    [alertVC addAction:ok];
+    [self presentViewController:alertVC animated:YES completion:nil];
+    
+}
+
 //- (void)viewWillAppear:(BOOL)animated{
-//    [super viewWillAppear:animated];
+//    [super viewWillAppear:NO];
+//    [self ScreenShot];
+//    self.bgView.bgImageView.image = _lastImage;
 //    [self setNavigationBarStyleClear];
 //}
 
@@ -120,13 +168,15 @@
 //}
 
 - (void)viewDidAppear:(BOOL)animated{
-    [super viewDidAppear:animated];
+    [super viewDidAppear:NO];
+    self.bgView.bgImageView.image = self.lastImage;
     [self setNavigationBarStyleNormal];
 }
 
 - (void)viewWillDisappear:(BOOL)animated{
-    [super viewWillDisappear:animated];
+    [super viewWillDisappear:NO];
     [self ScreenShot];
+    self.bgView.bgImageView.image = _lastImage;
     [self setNavigationBarStyleClear];
     
 }

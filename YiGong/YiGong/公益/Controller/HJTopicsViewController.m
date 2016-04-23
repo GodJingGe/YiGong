@@ -41,6 +41,7 @@
 - (void)loadData{
     HJRequestTool * tool = [[HJRequestTool alloc]init];
     NSDictionary * dic = [NSDictionary dictionaryWithObject:self.teamId forKey:@"vtid"];
+    HJLog(@"%@",self.teamId);
     NSString * url = [NSString stringWithFormat:COMMON_URL,TOPIC_URL];
     
     [tool postJSONWithUrl:url parameters:dic success:^(id responseObject) {

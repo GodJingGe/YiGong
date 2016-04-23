@@ -7,6 +7,7 @@
 //
 
 #import "HJAvatarViewController.h"
+#define REGISTER_URL @"uadd"
 
 @interface HJAvatarViewController ()<UIImagePickerControllerDelegate,UINavigationControllerDelegate>
 /** 头像*/
@@ -59,6 +60,34 @@
 #pragma mark --------------ClickAction
 
 - (void)completeAction{
+    
+    HJRequestTool * tool = [[HJRequestTool alloc]init];
+    NSString * url = [NSString stringWithFormat:COMMON_URL,REGISTER_URL];
+    NSMutableDictionary * dic = [NSMutableDictionary dictionary];
+    [dic setObject:self.model.nickName forKey:@"username"];
+    [dic setObject:self.model.phoneNum forKey:@"tel"];
+    [dic setObject:self.model.password forKey:@"pwd"];
+    if (self.model.avatar) {
+        NSData * data = UIImageJPEGRepresentation(self.model.avatar, 0.1);
+        [dic setObject:data forKey:@"file0"];
+    }
+   
+    [tool postFileWithUrl:url file:[NSMutableArray arrayWithObject:self.model.avatar] parameters:dic success:^(id responseObject) {
+        NSDictionary * jsonData = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
+        if ([jsonData[@"result"] isEqualToString:@"01"]) {
+            [self showHudWithText:@"注册成功"];
+            [[NSUserDefaults standardUserDefaults] setObject:jsonData[@"pd"][@"userid"] forKey:@"userid"];
+            NSInteger count = self.navigationController.childViewControllers.count - 5;
+            [self.navigationController popToViewController:self.navigationController.childViewControllers[count] animated:NO];
+        }else{
+            [self showHudWithText:jsonData[@"info"]];
+        }
+        
+        HJLog(@"%@",jsonData);
+    } fail:^(NSError *error) {
+        
+    }];
+    
     HJLog(@"完成注册");
 }
 

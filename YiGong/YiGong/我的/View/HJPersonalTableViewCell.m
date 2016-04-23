@@ -70,7 +70,10 @@
         case 0:
         {
             NSURL * url = [NSURL URLWithString:[NSString stringWithFormat:COMMON_IMAGE_URL,model.avatar]];
-            [self.iconImageView sd_setImageWithURL:url];
+            [self.iconImageView sd_setImageWithURL:url completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+                self.model.newavatar = self.iconImageView.image;
+            }];
+            
         }
             break;
         case 1:

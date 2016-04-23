@@ -36,6 +36,7 @@
         _scoreTF.font = [UIFont systemFontOfSize:17];
         _scoreTF.textColor = [UIColor cyanColor];
         _scoreTF.layer.cornerRadius = 5;
+        _scoreTF.delegate = self;
         _scoreTF.textAlignment = NSTextAlignmentCenter;
         _scoreTF.keyboardType = UIKeyboardTypeNumberPad;
         [_scoreTF addTarget:self action:@selector(textFielddidChanged:) forControlEvents:UIControlEventEditingChanged];
@@ -73,10 +74,6 @@
     self.frame = CGRectMake(0, 0, SCREEN_WIDTH, scoreRect.origin.y + scoreRect.size.height);
 }
 
-#pragma mark --------------UITextViewDelegate
-- (BOOL)textViewShouldBeginEditing:(UITextView *)textView{
-    return NO;
-}
 
 #pragma mark --------------UITextFieldDelegate
 - (void)textFielddidChanged:(UITextField *)textField{

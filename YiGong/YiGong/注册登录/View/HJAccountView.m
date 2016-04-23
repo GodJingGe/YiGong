@@ -16,6 +16,7 @@
         self.backgroundColor = BG_COLOR;
         self.frame = CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT - 64);
         [self createUI];
+        self.mTime = 59;
         self.nextBlock = next;
     }
     return self;
@@ -85,14 +86,17 @@
     _codeBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     _codeBtn.frame = CGRectMake(SCREEN_WIDTH - 110, 18, 95, 24);
     [_codeBtn setTitle:@"获取验证码" forState:UIControlStateNormal];
-    [_codeBtn setBackgroundImage:[UIImage imageWithColor:THEME_COLOR] forState:UIControlStateNormal];
     [_codeBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [_codeBtn setTitle:@"60S后获取" forState:UIControlStateSelected];
+    [_codeBtn setBackgroundImage:[UIImage imageWithColor:THEME_COLOR] forState:UIControlStateNormal];
+    [_codeBtn setTitleColor:HJRGBA(225, 225, 225, 1.0) forState:UIControlStateSelected];
+    [_codeBtn setBackgroundImage:[UIImage imageWithColor:HJRGBA(240, 239, 245, 1.0)] forState:UIControlStateSelected];
     _codeBtn.titleLabel.font = [UIFont systemFontOfSize:14];
     [_codeBtn addTarget:self action:@selector(verifyCode:) forControlEvents:UIControlEventTouchUpInside];
     _codeBtn.layer.cornerRadius = 12;
     _codeBtn.clipsToBounds = YES;
     [_codeView addSubview:_codeBtn];
-   
+    
     _nextBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     _nextBtn.frame = CGRectMake(15, SCREEN_HEIGHT - 89 - 64, SCREEN_WIDTH - 30, 40);
     [_nextBtn setTitle:@"下一步" forState:UIControlStateNormal];
@@ -122,11 +126,35 @@
 
 // 获取验证码
 - (void)verifyCode:(UIButton *)button{
-    if (self.getCodeBlock) {
-         self.getCodeBlock();
-    }else{
-        HJLog(@"没有实现Block");
+    if (!button.selected) {
+        [self StartTimer];
+        self.codeBtn.selected = YES;
+        if (self.getCodeBlock)
+            self.getCodeBlock();
+        else
+            HJLog(@"没有实现Block");
+    }    
+}
+
+// 开始计时
+- (void)StartTimer
+{
+    //repeats设为YES时每次 invalidate后重新执行，如果为NO，逻辑执行完后计时器无效
+    [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(timerAdvanced:) userInfo:nil repeats:YES];
+    
+}
+
+- (void)timerAdvanced:(NSTimer *)timer//这个函数将会执行一个循环的逻辑
+{
+    
+    if (_mTime == 0) {
+        [timer invalidate];
+        self.codeBtn.selected = NO;
+        _mTime = 59;
     }
-   
+    HJLog(@"%ld",_mTime);
+    
+    [self.codeBtn setTitle:[NSString stringWithFormat:@"%ldS后获取",(long)_mTime] forState:UIControlStateSelected];
+    _mTime --;
 }
 @end

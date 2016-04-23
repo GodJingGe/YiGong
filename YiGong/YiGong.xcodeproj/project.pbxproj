@@ -2290,6 +2290,7 @@
 			baseConfigurationReference = 60D22238D7F6DF29FFC325CB /* Pods.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer: YiGong Technology (7NE6FUMDC6)";
 				GCC_PREFIX_HEADER = "$(SRCROOT)/YiGong/Utils/PrefixHeader.pch";
 				INFOPLIST_FILE = YiGong/Info.plist;
@@ -2343,6 +2344,7 @@
 			baseConfigurationReference = EBD9F1B1F36B02453343B377 /* Pods.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer: YiGong Technology (7NE6FUMDC6)";
 				GCC_PREFIX_HEADER = "$(SRCROOT)/YiGong/Utils/PrefixHeader.pch";
 				INFOPLIST_FILE = YiGong/Info.plist;

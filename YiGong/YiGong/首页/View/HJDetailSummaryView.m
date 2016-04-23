@@ -92,7 +92,11 @@
 
 - (NSString *)formmatDateStr{
     NSDateFormatter * dfm = [[NSDateFormatter alloc]init];
-    [dfm setDateFormat:@"yyyy-MM-dd hh:mm:ss"];
+    if (_model.activityTime.length > 16) {
+        _model.activityTime = [_model.activityTime substringWithRange:NSMakeRange(0, 16)];
+    }
+    [dfm setDateFormat:@"yyyy-MM-dd hh:mm"];
+    
     NSDate *date = [dfm dateFromString:_model.activityTime];
     [dfm setDateFormat:@"MM-dd hh:mm"];
     NSString * dateStr = [dfm stringFromDate:date];

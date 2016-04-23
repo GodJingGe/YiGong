@@ -15,4 +15,5 @@
 @property (nonatomic, copy) NSString *code;
 /** 是否是注册*/
 @property(nonatomic, assign) BOOL isRegister;
+
 @end

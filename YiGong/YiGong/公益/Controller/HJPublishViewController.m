@@ -33,7 +33,11 @@
 - (void)publishTopic{
     NSString * url = [NSString stringWithFormat:COMMON_URL,TOPICPUB_URL];
     NSMutableDictionary * dic = [NSMutableDictionary dictionary];
-    [dic setValue:[[NSUserDefaults standardUserDefaults] valueForKey:@"userid"] forKey:@"userid"];
+    if ([self isLogin]) 
+        [dic setValue:[[NSUserDefaults standardUserDefaults] valueForKey:@"userid"] forKey:@"userid"];
+    else
+        return;
+    
     [dic setValue:[[NSUserDefaults standardUserDefaults] valueForKey:@"vtid"] forKey:@"vtid"];
     
     [dic setValue:self.inputView.titleTF.text forKey:@"title"];
@@ -48,7 +52,7 @@
         }
         [self showHudWithText:result];
     } fail:^(NSError *error) {
-        
+        [self showHudWithText:@"发布失败！"];
     }];
 }
 

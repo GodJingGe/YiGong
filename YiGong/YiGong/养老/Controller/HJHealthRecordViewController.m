@@ -28,7 +28,6 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [[NSUserDefaults standardUserDefaults]setValue:@"863a2b0d9767427b90ab51f066814263" forKey:@"userid"];
     [self createValue];
     [self createUI];
 }

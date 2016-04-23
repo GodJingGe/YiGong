@@ -11,6 +11,8 @@
 @interface HJAssessTableViewCell : UITableViewCell<UITextFieldDelegate,UITextViewDelegate>
 /** 问题提示*/
 @property(nonatomic,strong)UITextView *contentTextView;
+/** 问题内容*/
+@property(nonatomic, strong) UILabel *contentLabel;
 /** 输入成绩*/
 @property (nonatomic, strong)UITextField * scoreTF;
 /** 评估*/

@@ -55,7 +55,7 @@
     
     _model = model;
     NSURL * url = [NSURL URLWithString:[NSString stringWithFormat:COMMON_IMAGE_URL,model.teamIcon]];
-    HJLog(@"%@",model.teamIcon);
+    HJLog(@"%@",url);
     [_iconImageView sd_setImageWithURL:url];
 //    _iconImageView.image = [UIImage imageNamed:model.teamIcon];
     _titleLabel.text = model.teamName;

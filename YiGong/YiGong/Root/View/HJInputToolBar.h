@@ -13,7 +13,8 @@
 @property(nonatomic, strong) UITextView *textView;
 /** 展位文本*/
 @property(nonatomic, strong) UILabel *placeholderLabel;
-
+/** 占位文字*/
+@property(nonatomic, copy) NSString *placeText;
 /** 提交评论*/
 @property (nonatomic, copy) void (^commitCommentBlock)(NSString *);
 
